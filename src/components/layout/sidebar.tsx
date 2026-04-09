@@ -2,17 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
-  ArrowRightOnRectangleIcon,
   ChartBarIcon,
   ClipboardDocumentCheckIcon,
   ClipboardDocumentListIcon,
   CubeIcon,
   DocumentTextIcon,
   FlagIcon,
-  LifebuoyIcon,
   ShieldCheckIcon,
   UserGroupIcon,
   CalendarDaysIcon,
@@ -52,18 +50,9 @@ export function Sidebar() {
               <ShieldCheckIcon className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-text-primary">Sentinel HQ</p>
+              <p className="text-sm font-semibold text-text-primary">SOF Compass</p>
               <p className="eyebrow mt-1">Executive Oversight</p>
             </div>
-          </div>
-          <div className="mt-4 rounded-2xl border border-border bg-background-secondary/70 px-3 py-3">
-            <p className="metric-label">Current Operator</p>
-            <p className="mt-2 text-sm font-medium text-text-primary">
-              {session?.user?.name || "Mission Control"}
-            </p>
-            <p className="mt-1 text-xs text-text-secondary">
-              {session?.user?.role || "Executive"}
-            </p>
           </div>
         </div>
 
@@ -115,21 +104,10 @@ export function Sidebar() {
           )}
         </nav>
 
-        <div className="space-y-3 border-t border-border pt-4">
+        <div className="border-t border-border pt-4">
           <Link href="/updates" className="btn-primary w-full">
             New Briefing
           </Link>
-          <button className="btn-secondary w-full justify-start">
-            <LifebuoyIcon className="mr-2 h-4 w-4" />
-            Help
-          </button>
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="btn-secondary w-full justify-start"
-          >
-            <ArrowRightOnRectangleIcon className="mr-2 h-4 w-4" />
-            Logout
-          </button>
         </div>
       </div>
     </aside>

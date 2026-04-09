@@ -42,7 +42,7 @@ function LoginForm() {
             <ShieldCheckIcon className="h-8 w-8 text-accent" />
           </div>
           <h1 className="text-xl font-semibold text-text-primary">
-            Security Program Tracker
+            SOF Compass
           </h1>
           <p className="mt-1 text-sm text-text-secondary">
             Sign in to access your dashboard

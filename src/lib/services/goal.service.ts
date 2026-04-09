@@ -84,7 +84,37 @@ export const goalService = {
   },
 
   async delete(id: string, userId: string) {
-    await prisma.annualGoal.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      const quarterlyReviews = await tx.quarterlyReview.findMany({
+        where: { goalId: id },
+        select: { id: true },
+      });
+
+      const rocks = await tx.quarterlyRock.findMany({
+        where: { goalId: id },
+        select: { id: true },
+      });
+
+      const quarterlyReviewIds = quarterlyReviews.map((review) => review.id);
+      const rockIds = rocks.map((rock) => rock.id);
+
+      if (quarterlyReviewIds.length > 0) {
+        await tx.quarterlyReviewRock.deleteMany({
+          where: { quarterlyReviewId: { in: quarterlyReviewIds } },
+        });
+      }
+
+      if (rockIds.length > 0) {
+        await tx.quarterlyReviewRock.deleteMany({
+          where: { rockId: { in: rockIds } },
+        });
+      }
+
+      await tx.monthlyReview.deleteMany({ where: { goalId: id } });
+      await tx.quarterlyReview.deleteMany({ where: { goalId: id } });
+      await tx.quarterlyRock.deleteMany({ where: { goalId: id } });
+      await tx.annualGoal.delete({ where: { id } });
+    });
 
     await createAuditLog({
       userId,

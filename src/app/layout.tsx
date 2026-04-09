@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Security Program Tracker",
-  description: "Annual Goals & Quarterly Rocks Management Platform",
+  title: "SOF Compass",
+  description: "Annual goals, quarterly rocks, and execution reviews for security operations.",
 };
 
 export default function RootLayout({

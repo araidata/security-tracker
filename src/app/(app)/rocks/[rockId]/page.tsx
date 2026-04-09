@@ -6,6 +6,7 @@ import { RockStatusBadge, TaskStatusBadge } from "@/components/shared/status-bad
 import { PriorityBadge } from "@/components/shared/priority-badge";
 import { DepartmentBadge } from "@/components/shared/department-badge";
 import { ConfidenceIndicator } from "@/components/shared/confidence-indicator";
+import { DeleteEntityButton } from "@/components/shared/delete-entity-button";
 import { formatPercent, formatDate, getDaysAgo } from "@/lib/utils";
 import { PencilIcon, PlusIcon } from "@heroicons/react/24/outline";
 
@@ -33,6 +34,13 @@ export default async function RockDetailPage({
           <PencilIcon className="mr-1.5 h-4 w-4" />
           Edit
         </Link>
+        <DeleteEntityButton
+          entityName="Rock"
+          endpoint={`/api/rocks/${rock.id}`}
+          redirectTo="/rocks"
+          allowedRoles={["EXECUTIVE", "MANAGER"]}
+          confirmMessage="Delete this rock and its linked assignments and updates?"
+        />
       </PageHeader>
 
       {/* Rock Overview */}

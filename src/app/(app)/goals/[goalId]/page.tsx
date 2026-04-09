@@ -6,6 +6,7 @@ import { GoalStatusBadge, RockStatusBadge } from "@/components/shared/status-bad
 import { PriorityBadge } from "@/components/shared/priority-badge";
 import { DepartmentBadge } from "@/components/shared/department-badge";
 import { ConfidenceIndicator } from "@/components/shared/confidence-indicator";
+import { DeleteEntityButton } from "@/components/shared/delete-entity-button";
 import { formatPercent, formatDate } from "@/lib/utils";
 import { PencilIcon } from "@heroicons/react/24/outline";
 
@@ -29,6 +30,13 @@ export default async function GoalDetailPage({
           <PencilIcon className="mr-1.5 h-4 w-4" />
           Edit
         </Link>
+        <DeleteEntityButton
+          entityName="Goal"
+          endpoint={`/api/goals/${goal.id}`}
+          redirectTo="/goals"
+          allowedRoles={["EXECUTIVE"]}
+          confirmMessage="Delete this goal and all linked rocks and review history?"
+        />
       </PageHeader>
 
       {/* Goal Overview */}
