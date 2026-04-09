@@ -66,7 +66,7 @@ export function Sidebar() {
                   <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wider text-text-tertiary">
                     {item.name}
                   </p>
-                  {item.children.map((child) => (
+                  {item.children!.map((child) => (
                     <NavItem
                       key={child.href}
                       href={child.href}

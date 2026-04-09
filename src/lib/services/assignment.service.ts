@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "./audit.service";
 import type { CreateAssignmentInput, UpdateAssignmentInput } from "@/lib/validations/assignment";
-import type { TaskStatus } from "@/generated/prisma";
+import type { TaskStatus } from "@prisma/client";
 
 export const assignmentService = {
   async list(filters?: { rockId?: string; ownerId?: string; status?: string }) {

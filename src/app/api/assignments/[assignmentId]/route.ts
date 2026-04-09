@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession, requireRole } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { assignmentService } from "@/lib/services/assignment.service";
 import { updateAssignmentSchema } from "@/lib/validations/assignment";
 

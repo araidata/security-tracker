@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "./audit.service";
 import { goalService } from "./goal.service";
 import type { CreateRockInput, UpdateRockInput } from "@/lib/validations/rock";
-import type { Department, Quarter, RockStatus } from "@/generated/prisma";
+import type { Department, Quarter, RockStatus } from "@prisma/client";
 import { subDays } from "date-fns";
 
 export const rockService = {

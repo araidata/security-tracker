@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type { Department } from "@/generated/prisma";
+import type { Department } from "@prisma/client";
 import { subDays } from "date-fns";
 
 export const dashboardService = {

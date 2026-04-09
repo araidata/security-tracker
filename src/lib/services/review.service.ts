@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "./audit.service";
 import type { CreateMonthlyReviewInput, CreateQuarterlyReviewInput } from "@/lib/validations/review";
-import type { Quarter } from "@/generated/prisma";
+import type { Quarter } from "@prisma/client";
 
 export const reviewService = {
   async listMonthly(filters?: { fiscalYear?: number; goalId?: string }) {

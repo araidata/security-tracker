@@ -13,7 +13,7 @@ export async function createAuditLog(params: {
       action: params.action,
       entityType: params.entityType,
       entityId: params.entityId,
-      changes: params.changes ?? undefined,
+      changes: params.changes ? JSON.parse(JSON.stringify(params.changes)) : undefined,
     },
   });
 }

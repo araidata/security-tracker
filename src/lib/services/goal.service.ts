@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { createAuditLog } from "./audit.service";
 import type { CreateGoalInput, UpdateGoalInput } from "@/lib/validations/goal";
-import type { Department, GoalStatus } from "@/generated/prisma";
+import type { Department, GoalStatus } from "@prisma/client";
 
 export const goalService = {
   async list(filters?: {
