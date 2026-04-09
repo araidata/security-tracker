@@ -100,6 +100,8 @@ export const DEPARTMENT_CONFIG = {
   GRC: { label: "GRC", shortLabel: "GRC" },
 } as const;
 
+export const DEPARTMENT_ORDER = ["SEC_OPS", "SAE", "GRC"] as const;
+
 export const ROLE_CONFIG = {
   EXECUTIVE: { label: "Executive" },
   MANAGER: { label: "Manager" },
