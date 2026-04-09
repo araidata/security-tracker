@@ -18,7 +18,12 @@ export function ConfidenceIndicator({ confidence }: { confidence: Confidence }) 
   const config = CONFIDENCE_CONFIG[confidence];
   const Icon = iconMap[confidence];
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs", config.color)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em]",
+        config.color
+      )}
+    >
       <Icon className="h-3.5 w-3.5" />
       {config.label}
     </span>

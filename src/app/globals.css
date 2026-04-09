@@ -14,9 +14,16 @@
   body {
     @apply bg-background text-text-primary antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at top left, rgba(122, 162, 255, 0.18), transparent 22rem),
+      radial-gradient(circle at top right, rgba(57, 217, 138, 0.08), transparent 20rem),
+      linear-gradient(180deg, rgba(10, 17, 27, 0.9), rgba(6, 11, 18, 1)),
+      radial-gradient(rgba(167, 182, 200, 0.12) 0.7px, transparent 0.7px);
+    background-size: auto, auto, auto, 16px 16px;
+    background-position: 0 0, 100% 0, 0 0, 0 0;
   }
 
-  /* Scrollbar styling */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -34,7 +41,6 @@
     @apply bg-text-tertiary;
   }
 
-  /* Focus styles */
   *:focus-visible {
     @apply outline-none ring-2 ring-accent-focus ring-offset-2 ring-offset-background;
   }
@@ -42,38 +48,75 @@
 
 @layer components {
   .card {
-    @apply bg-background-secondary border border-border rounded-card p-5;
+    @apply rounded-card border border-border bg-background-secondary/90 p-6;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 18px 40px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(18px);
   }
 
   .card-hover {
-    @apply card transition-colors duration-hover hover:border-border-strong;
+    @apply card transition-all duration-hover hover:-translate-y-0.5 hover:border-border-strong;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors duration-hover hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-accent-focus disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center rounded-full border border-accent/50 bg-accent px-4 py-2 text-sm font-semibold text-background transition-all duration-hover hover:-translate-y-0.5 hover:bg-accent-hover hover:shadow-[0_10px_30px_rgba(122,162,255,0.32)] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border border-border bg-background-secondary px-4 py-2 text-sm font-medium text-text-primary transition-colors duration-hover hover:bg-background-tertiary disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center rounded-full border border-border bg-background-tertiary/70 px-4 py-2 text-sm font-medium text-text-primary transition-all duration-hover hover:border-border-strong hover:bg-background-quaternary/70 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center rounded-lg bg-status-off-track/10 px-4 py-2 text-sm font-medium text-status-off-track transition-colors duration-hover hover:bg-status-off-track/20 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center rounded-full border border-status-off-track/30 bg-status-off-track px-4 py-2 text-sm font-medium text-status-off-track transition-colors duration-hover hover:bg-status-off-track/20 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:ring-1 focus:ring-accent;
+    @apply w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:bg-background-secondary focus:ring-1 focus:ring-accent;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
   }
 
   .table-header {
-    @apply bg-background-secondary text-text-secondary text-xs font-medium uppercase tracking-wider;
+    @apply border-b border-border bg-background-secondary/40 text-[11px] font-semibold uppercase tracking-[0.22em] text-text-tertiary;
   }
 
   .table-row {
-    @apply border-b border-border transition-colors duration-hover hover:bg-background-tertiary;
+    @apply border-b border-border/80 transition-all duration-hover hover:bg-background-tertiary/55;
   }
 
   .table-row-selected {
     @apply bg-row-selected;
+  }
+
+  .surface-outline {
+    @apply rounded-[28px] border border-border bg-background-secondary/80;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 28px 60px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(20px);
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.28em] text-text-tertiary;
+  }
+
+  .metric-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-text-tertiary;
+  }
+
+  .progress-track {
+    @apply h-2 w-full overflow-hidden rounded-full bg-background-quaternary/80;
+  }
+
+  .progress-bar {
+    @apply h-full rounded-full bg-accent;
+    box-shadow: 0 0 18px rgba(122, 162, 255, 0.42);
+  }
+
+  .table-shell {
+    @apply overflow-hidden rounded-[26px] border border-border bg-background-secondary/85;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 24px 48px rgba(0, 0, 0, 0.24);
   }
 }

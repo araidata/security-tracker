@@ -6,7 +6,13 @@ type Priority = keyof typeof PRIORITY_CONFIG;
 export function PriorityBadge({ priority }: { priority: Priority }) {
   const config = PRIORITY_CONFIG[priority];
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium", config.bg, config.color)}>
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em]",
+        config.bg,
+        config.color
+      )}
+    >
       {config.label}
     </span>
   );

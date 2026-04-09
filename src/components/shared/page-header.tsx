@@ -17,14 +17,19 @@ export function PageHeader({
   children,
 }: PageHeaderProps) {
   return (
-    <div className="mb-6 flex items-start justify-between">
-      <div>
-        <h1 className="text-2xl font-semibold text-text-primary">{title}</h1>
+    <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+      <div className="max-w-3xl">
+        <p className="eyebrow">Operations Intelligence</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-text-primary sm:text-[2.5rem]">
+          {title}
+        </h1>
         {description && (
-          <p className="mt-1 text-sm text-text-secondary">{description}</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-text-secondary sm:text-base">
+            {description}
+          </p>
         )}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {children}
         {createHref && (
           <Link href={createHref} className="btn-primary">

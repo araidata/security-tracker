@@ -10,51 +10,46 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Background layers
         background: {
-          DEFAULT: "#0B0F14",
-          secondary: "#121821",
-          tertiary: "#1A2230",
+          DEFAULT: "#060B12",
+          secondary: "#0D1521",
+          tertiary: "#121C2B",
+          quaternary: "#1A2638",
         },
-        // Borders
         border: {
-          DEFAULT: "#2A3442",
-          strong: "#3A4758",
+          DEFAULT: "#1C2940",
+          strong: "#2A3B57",
         },
-        // Text
-        "text-primary": "#E6EDF3",
-        "text-secondary": "#9FB0C3",
-        "text-tertiary": "#6B7C93",
-        "text-disabled": "#4A5568",
-        // Status colors
+        "text-primary": "#F3F7FB",
+        "text-secondary": "#A7B6C8",
+        "text-tertiary": "#718197",
+        "text-disabled": "#49576C",
         status: {
-          "on-track": "#22C55E",
-          "at-risk": "#F59E0B",
-          blocked: "#F97316",
-          "off-track": "#EF4444",
-          complete: "#3B82F6",
-          "not-started": "#6B7280",
+          "on-track": "#39D98A",
+          "at-risk": "#F7B267",
+          blocked: "#FF8A5B",
+          "off-track": "#FF6B7D",
+          complete: "#7AA2FF",
+          "not-started": "#7D8DA6",
         },
-        // Accent / Interaction
         accent: {
-          DEFAULT: "#3B82F6",
-          hover: "#2563EB",
-          focus: "#60A5FA",
+          DEFAULT: "#7AA2FF",
+          hover: "#9AB7FF",
+          focus: "#A7BEFF",
         },
-        // Low confidence
-        "low-confidence": "#E11D48",
+        "low-confidence": "#FF7C92",
       },
       backgroundColor: {
-        "status-on-track": "rgba(34,197,94,0.1)",
-        "status-at-risk": "rgba(245,158,11,0.1)",
-        "status-blocked": "rgba(249,115,22,0.1)",
-        "status-off-track": "rgba(239,68,68,0.1)",
-        "status-complete": "rgba(59,130,246,0.1)",
-        "selection": "rgba(59,130,246,0.2)",
-        "row-selected": "rgba(59,130,246,0.15)",
+        "status-on-track": "rgba(57,217,138,0.12)",
+        "status-at-risk": "rgba(247,178,103,0.14)",
+        "status-blocked": "rgba(255,138,91,0.14)",
+        "status-off-track": "rgba(255,107,125,0.14)",
+        "status-complete": "rgba(122,162,255,0.14)",
+        "selection": "rgba(122,162,255,0.18)",
+        "row-selected": "rgba(122,162,255,0.12)",
       },
       borderRadius: {
-        card: "12px",
+        card: "22px",
       },
       transitionDuration: {
         "hover": "150ms",

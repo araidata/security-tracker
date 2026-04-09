@@ -2,35 +2,35 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
-  ShieldCheckIcon,
-  ChartBarIcon,
-  FlagIcon,
-  CubeIcon,
-  ClipboardDocumentListIcon,
-  DocumentTextIcon,
-  CalendarDaysIcon,
-  UserGroupIcon,
-  ClipboardDocumentCheckIcon,
   ArrowRightOnRectangleIcon,
+  ChartBarIcon,
+  ClipboardDocumentCheckIcon,
+  ClipboardDocumentListIcon,
+  CubeIcon,
+  DocumentTextIcon,
+  FlagIcon,
+  LifebuoyIcon,
+  ShieldCheckIcon,
+  UserGroupIcon,
+  CalendarDaysIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: ChartBarIcon },
-  { name: "Annual Goals", href: "/goals", icon: FlagIcon },
-  { name: "Quarterly Rocks", href: "/rocks", icon: CubeIcon },
+  { name: "Goals", href: "/goals", icon: FlagIcon },
+  { name: "Rocks", href: "/rocks", icon: CubeIcon },
   { name: "Assignments", href: "/assignments", icon: ClipboardDocumentListIcon },
-  { name: "Weekly Updates", href: "/updates", icon: DocumentTextIcon },
-  {
-    name: "Reviews",
-    children: [
-      { name: "Monthly", href: "/reviews/monthly", icon: CalendarDaysIcon },
-      { name: "Quarterly", href: "/reviews/quarterly", icon: ClipboardDocumentCheckIcon },
-    ],
-  },
+  { name: "Reviews", href: "/reviews/monthly", icon: ClipboardDocumentCheckIcon },
+  { name: "Updates", href: "/updates", icon: DocumentTextIcon },
+];
+
+const reviewLinks = [
+  { name: "Monthly", href: "/reviews/monthly", icon: CalendarDaysIcon },
+  { name: "Quarterly", href: "/reviews/quarterly", icon: ClipboardDocumentCheckIcon },
 ];
 
 const adminNavigation = [
@@ -44,41 +44,32 @@ export function Sidebar() {
   const isExecutive = session?.user?.role === "EXECUTIVE";
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-border bg-background-secondary">
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-3 border-b border-border px-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
-          <ShieldCheckIcon className="h-5 w-5 text-accent" />
+    <aside className="fixed inset-y-4 left-4 z-40 hidden w-[17rem] lg:block">
+      <div className="surface-outline flex h-full flex-col overflow-hidden px-4 py-4">
+        <div className="rounded-[24px] border border-accent/20 bg-background/70 px-4 py-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-accent/30 bg-accent/10">
+              <ShieldCheckIcon className="h-5 w-5 text-accent" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-text-primary">Sentinel HQ</p>
+              <p className="eyebrow mt-1">Executive Oversight</p>
+            </div>
+          </div>
+          <div className="mt-4 rounded-2xl border border-border bg-background-secondary/70 px-3 py-3">
+            <p className="metric-label">Current Operator</p>
+            <p className="mt-2 text-sm font-medium text-text-primary">
+              {session?.user?.name || "Mission Control"}
+            </p>
+            <p className="mt-1 text-xs text-text-secondary">
+              {session?.user?.role || "Executive"}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-sm font-semibold text-text-primary">Security Tracker</h1>
-          <p className="text-xs text-text-tertiary">Program Management</p>
-        </div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
-        <div className="space-y-1">
-          {navigation.map((item) => {
-            if ("children" in item) {
-              return (
-                <div key={item.name} className="pt-3">
-                  <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                    {item.name}
-                  </p>
-                  {item.children!.map((child) => (
-                    <NavItem
-                      key={child.href}
-                      href={child.href}
-                      icon={child.icon}
-                      name={child.name}
-                      active={pathname.startsWith(child.href)}
-                    />
-                  ))}
-                </div>
-              );
-            }
-            return (
+        <nav className="mt-5 flex-1 overflow-y-auto">
+          <div className="space-y-1">
+            {navigation.map((item) => (
               <NavItem
                 key={item.href}
                 href={item.href}
@@ -86,53 +77,58 @@ export function Sidebar() {
                 name={item.name}
                 active={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
               />
-            );
-          })}
+            ))}
+          </div>
 
-          {isExecutive && (
-            <div className="pt-3">
-              <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wider text-text-tertiary">
-                Admin
-              </p>
-              {adminNavigation.map((item) => (
+          <div className="mt-6">
+            <p className="eyebrow px-3">Review Cadence</p>
+            <div className="mt-2 space-y-1">
+              {reviewLinks.map((item) => (
                 <NavItem
                   key={item.href}
                   href={item.href}
                   icon={item.icon}
                   name={item.name}
                   active={pathname.startsWith(item.href)}
+                  compact
                 />
               ))}
             </div>
-          )}
-        </div>
-      </nav>
+          </div>
 
-      {/* User section */}
-      <div className="border-t border-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-xs font-medium text-accent">
-            {session?.user?.name
-              ?.split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase()
-              .slice(0, 2) || "?"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-text-primary">
-              {session?.user?.name || "User"}
-            </p>
-            <p className="truncate text-xs text-text-tertiary">
-              {session?.user?.role || ""}
-            </p>
-          </div>
+          {isExecutive && (
+            <div className="mt-6">
+              <p className="eyebrow px-3">Admin</p>
+              <div className="mt-2 space-y-1">
+                {adminNavigation.map((item) => (
+                  <NavItem
+                    key={item.href}
+                    href={item.href}
+                    icon={item.icon}
+                    name={item.name}
+                    active={pathname.startsWith(item.href)}
+                    compact
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </nav>
+
+        <div className="space-y-3 border-t border-border pt-4">
+          <Link href="/updates" className="btn-primary w-full">
+            New Briefing
+          </Link>
+          <button className="btn-secondary w-full justify-start">
+            <LifebuoyIcon className="mr-2 h-4 w-4" />
+            Help
+          </button>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="rounded-lg p-1.5 text-text-tertiary transition-colors hover:bg-background-tertiary hover:text-text-primary"
-            title="Sign out"
+            className="btn-secondary w-full justify-start"
           >
-            <ArrowRightOnRectangleIcon className="h-4 w-4" />
+            <ArrowRightOnRectangleIcon className="mr-2 h-4 w-4" />
+            Logout
           </button>
         </div>
       </div>
@@ -145,24 +141,36 @@ function NavItem({
   icon: Icon,
   name,
   active,
+  compact = false,
 }: {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   name: string;
   active: boolean;
+  compact?: boolean;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors duration-hover",
+        "group flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm transition-all duration-hover",
+        compact ? "py-2.5" : "",
         active
-          ? "bg-accent/10 text-accent font-medium"
-          : "text-text-secondary hover:bg-background-tertiary hover:text-text-primary"
+          ? "border-accent/25 bg-accent/12 text-text-primary shadow-[0_0_0_1px_rgba(122,162,255,0.12)]"
+          : "border-transparent text-text-secondary hover:border-border hover:bg-background-tertiary/65 hover:text-text-primary"
       )}
     >
-      <Icon className="h-4.5 w-4.5 shrink-0" />
-      {name}
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors",
+          active
+            ? "border-accent/30 bg-accent/14 text-accent"
+            : "border-border bg-background-secondary/70 text-text-tertiary group-hover:text-text-primary"
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="font-medium">{name}</span>
     </Link>
   );
 }

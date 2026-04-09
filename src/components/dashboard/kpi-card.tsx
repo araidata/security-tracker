@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/24/solid";
+import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/solid";
 
 interface KPICardProps {
   title: string;
@@ -21,34 +21,32 @@ export function KPICard({
   accentColor,
 }: KPICardProps) {
   return (
-    <div className="card">
-      <div className="flex items-start justify-between">
+    <div className="card-hover h-full">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-text-secondary">{title}</p>
-          <p className={cn("mt-2 text-3xl font-semibold", accentColor || "text-text-primary")}>
+          <p className="metric-label">{title}</p>
+          <p
+            className={cn(
+              "mt-3 text-4xl font-semibold tracking-tight text-text-primary",
+              accentColor
+            )}
+          >
             {value}
           </p>
-          {subtitle && (
-            <p className="mt-1 text-xs text-text-tertiary">{subtitle}</p>
-          )}
+          {subtitle && <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>}
         </div>
         {icon && (
-          <div className="rounded-lg bg-background-tertiary p-2.5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-background text-text-secondary">
             {icon}
           </div>
         )}
       </div>
       {trend && trendLabel && (
-        <div className="mt-3 flex items-center gap-1">
-          {trend === "up" && (
-            <ArrowUpIcon className="h-3.5 w-3.5 text-status-on-track" />
-          )}
-          {trend === "down" && (
-            <ArrowDownIcon className="h-3.5 w-3.5 text-status-off-track" />
-          )}
+        <div className="mt-5 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em]">
+          {trend === "up" && <ArrowUpIcon className="h-3.5 w-3.5 text-status-on-track" />}
+          {trend === "down" && <ArrowDownIcon className="h-3.5 w-3.5 text-status-off-track" />}
           <span
             className={cn(
-              "text-xs font-medium",
               trend === "up" && "text-status-on-track",
               trend === "down" && "text-status-off-track",
               trend === "neutral" && "text-text-tertiary"
