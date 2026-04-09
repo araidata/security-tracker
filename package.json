@@ -7,14 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
-  },
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "postinstall": "node scripts/prisma-with-env.cjs generate",
+    "db:push": "node scripts/prisma-with-env.cjs db push",
+    "db:migrate": "node scripts/prisma-with-env.cjs migrate dev",
+    "db:seed": "node scripts/prisma-with-env.cjs db seed",
+    "db:studio": "node scripts/prisma-with-env.cjs studio"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

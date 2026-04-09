@@ -1,5 +1,28 @@
+import fs from "node:fs";
+import path from "node:path";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+
+const rootDir = process.cwd();
+const loadedFromFiles = new Set<string>();
+
+for (const envFile of [".env", ".env.local"]) {
+  const envPath = path.join(rootDir, envFile);
+
+  if (!fs.existsSync(envPath)) {
+    continue;
+  }
+
+  const parsed = dotenv.parse(fs.readFileSync(envPath));
+
+  for (const [key, value] of Object.entries(parsed)) {
+    if (process.env[key] === undefined || loadedFromFiles.has(key)) {
+      process.env[key] = value;
+      loadedFromFiles.add(key);
+    }
+  }
+}
 
 const prisma = new PrismaClient();
 

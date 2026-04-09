@@ -48,7 +48,8 @@ cp .env.example .env
 ```
 
 Required variables:
-- `DATABASE_URL` - PostgreSQL connection string
+- `DATABASE_URL` - PostgreSQL runtime connection string
+- `DATABASE_URL_UNPOOLED` - Direct PostgreSQL connection string for Prisma migrations and schema operations
 - `NEXTAUTH_SECRET` - Random 32+ character string (generate with `openssl rand -base64 32`)
 - `NEXTAUTH_URL` - Your app URL (`http://localhost:3000` for local dev)
 
@@ -95,18 +96,26 @@ All 9 users share the same password. See `prisma/seed.ts` for the full list.
 1. Push your repo to GitHub
 2. Import the project in [Vercel](https://vercel.com)
 3. Add environment variables in the Vercel dashboard:
-   - `DATABASE_URL` (from Neon, Supabase, or Vercel Postgres)
+   - `DATABASE_URL` (pooled/runtime URL from Neon)
+   - `DATABASE_URL_UNPOOLED` (direct/unpooled Neon URL for Prisma)
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (your Vercel deployment URL)
-4. Vercel will automatically run `prisma generate` via the `postinstall` script
-5. Run migrations against your production database:
+4. Pull Vercel-managed secrets into `.env.local` for local development:
+   ```bash
+   vercel env pull .env.local --yes
+   ```
+5. Prisma CLI commands in this repo load both `.env` and `.env.local`, so local schema/seed commands keep working after a Vercel env pull.
+6. Vercel will automatically run `prisma generate` via the `postinstall` script
+7. Run migrations against your production database:
    ```bash
    npx prisma migrate deploy
    ```
-6. Seed the database (optional):
+8. Seed the database (optional):
    ```bash
    npm run db:seed
    ```
+
+When using the Vercel Neon integration, map `DATABASE_URL` to the pooled connection string and `DATABASE_URL_UNPOOLED` to Neon/Vercel's unpooled connection string so Prisma runtime queries and migration commands use the right connection type.
 
 ## Project Structure
 
