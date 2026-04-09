@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-text-primary antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border-strong rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-tertiary;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-accent-focus ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-background-secondary border border-border rounded-card p-5;
+  }
+
+  .card-hover {
+    @apply card transition-colors duration-hover hover:border-border-strong;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors duration-hover hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-accent-focus disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-border bg-background-secondary px-4 py-2 text-sm font-medium text-text-primary transition-colors duration-hover hover:bg-background-tertiary disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-lg bg-status-off-track/10 px-4 py-2 text-sm font-medium text-status-off-track transition-colors duration-hover hover:bg-status-off-track/20 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:ring-1 focus:ring-accent;
+  }
+
+  .table-header {
+    @apply bg-background-secondary text-text-secondary text-xs font-medium uppercase tracking-wider;
+  }
+
+  .table-row {
+    @apply border-b border-border transition-colors duration-hover hover:bg-background-tertiary;
+  }
+
+  .table-row-selected {
+    @apply bg-row-selected;
+  }
+}

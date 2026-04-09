@@ -1,0 +1,321 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────
+
+enum Role {
+  EXECUTIVE
+  MANAGER
+  CONTRIBUTOR
+}
+
+enum Department {
+  SEC_OPS
+  SAE
+  GRC
+}
+
+enum GoalStatus {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+  COMPLETED
+}
+
+enum RockStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+  OVERDUE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Confidence {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum Quarter {
+  Q1
+  Q2
+  Q3
+  Q4
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+// ─── User Model ─────────────────────────────────────
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         Role       @default(CONTRIBUTOR)
+  department   Department
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // NextAuth
+  accounts Account[]
+  sessions Session[]
+
+  // Domain
+  ownedGoals    AnnualGoal[]     @relation("GoalOwner")
+  ownedRocks    QuarterlyRock[]  @relation("RockOwner")
+  assignments   TeamAssignment[] @relation("AssignmentOwner")
+  contributions AssignmentContributor[]
+  weeklyUpdates WeeklyUpdate[]
+  auditLogs     AuditLog[]
+}
+
+// ─── NextAuth Models ────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Domain Models ──────────────────────────────────
+
+model AnnualGoal {
+  id            String     @id @default(cuid())
+  title         String
+  description   String     @db.Text
+  fiscalYear    Int
+  department    Department
+  status        GoalStatus @default(ON_TRACK)
+  priority      Priority   @default(MEDIUM)
+  targetDate    DateTime
+  completionPct Float      @default(0)
+  metrics       String?    @db.Text
+  ownerId       String
+  owner         User       @relation("GoalOwner", fields: [ownerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  rocks            QuarterlyRock[]
+  monthlyReviews   MonthlyReview[]
+  quarterlyReviews QuarterlyReview[]
+
+  @@index([fiscalYear, department])
+  @@index([ownerId])
+}
+
+model QuarterlyRock {
+  id            String     @id @default(cuid())
+  title         String
+  description   String     @db.Text
+  quarter       Quarter
+  fiscalYear    Int
+  status        RockStatus @default(NOT_STARTED)
+  priority      Priority   @default(MEDIUM)
+  confidence    Confidence @default(HIGH)
+  targetDate    DateTime
+  completionPct Float      @default(0)
+  kpiMetric     String?
+  blockers      String?    @db.Text
+  isStale       Boolean    @default(false)
+  department    Department
+
+  goalId  String
+  goal    AnnualGoal @relation(fields: [goalId], references: [id])
+  ownerId String
+  owner   User       @relation("RockOwner", fields: [ownerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  assignments     TeamAssignment[]
+  weeklyUpdates   WeeklyUpdate[]
+  reviewSnapshots QuarterlyReviewRock[]
+
+  @@index([goalId])
+  @@index([quarter, fiscalYear])
+  @@index([ownerId])
+  @@index([status])
+}
+
+model TeamAssignment {
+  id          String     @id @default(cuid())
+  title       String
+  description String?    @db.Text
+  status      TaskStatus @default(TODO)
+  dueDate     DateTime?
+
+  rockId  String
+  rock    QuarterlyRock @relation(fields: [rockId], references: [id], onDelete: Cascade)
+  ownerId String
+  owner   User          @relation("AssignmentOwner", fields: [ownerId], references: [id])
+
+  contributors AssignmentContributor[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@index([rockId])
+  @@index([ownerId])
+}
+
+model AssignmentContributor {
+  id           String         @id @default(cuid())
+  assignmentId String
+  assignment   TeamAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+
+  @@unique([assignmentId, userId])
+}
+
+model WeeklyUpdate {
+  id              String        @id @default(cuid())
+  rockId          String
+  rock            QuarterlyRock @relation(fields: [rockId], references: [id], onDelete: Cascade)
+  authorId        String
+  author          User          @relation(fields: [authorId], references: [id])
+  weekOf          DateTime
+  progressNotes   String        @db.Text
+  blockers        String?       @db.Text
+  risks           String?       @db.Text
+  decisions       String?       @db.Text
+  completionPct   Float
+  confidenceLevel Confidence
+  needsAttention  Boolean       @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([rockId, weekOf])
+  @@index([rockId])
+  @@index([authorId])
+  @@index([weekOf])
+}
+
+model MonthlyReview {
+  id              String     @id @default(cuid())
+  goalId          String
+  goal            AnnualGoal @relation(fields: [goalId], references: [id])
+  month           Int
+  fiscalYear      Int
+  summary         String     @db.Text
+  highlights      String?    @db.Text
+  concerns        String?    @db.Text
+  leadershipNotes String?    @db.Text
+  overallStatus   GoalStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@unique([goalId, month, fiscalYear])
+  @@index([fiscalYear, month])
+}
+
+model QuarterlyReview {
+  id              String     @id @default(cuid())
+  goalId          String
+  goal            AnnualGoal @relation(fields: [goalId], references: [id])
+  quarter         Quarter
+  fiscalYear      Int
+  plannedOutcomes String     @db.Text
+  actualOutcomes  String     @db.Text
+  lessonsLearned  String?    @db.Text
+  adjustments     String?    @db.Text
+  overallStatus   GoalStatus
+
+  rocks QuarterlyReviewRock[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  @@unique([goalId, quarter, fiscalYear])
+  @@index([fiscalYear, quarter])
+}
+
+model QuarterlyReviewRock {
+  id                String          @id @default(cuid())
+  quarterlyReviewId String
+  quarterlyReview   QuarterlyReview @relation(fields: [quarterlyReviewId], references: [id], onDelete: Cascade)
+  rockId            String
+  rock              QuarterlyRock   @relation(fields: [rockId], references: [id])
+  plannedCompletion Float
+  actualCompletion  Float
+  statusAtReview    RockStatus
+  notes             String?         @db.Text
+
+  @@unique([quarterlyReviewId, rockId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  changes    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+}
