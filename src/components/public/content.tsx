@@ -23,9 +23,9 @@ export const upcomingTrips = [
 ] as const;
 
 export const clubNews = [
-  "Next club meeting is Tuesday at 6:30 PM in the old town hall basement.",
-  "Please remember to bring your own safety glasses for field trips this spring.",
-  "The polishing wheel still needs a volunteer for cleanup after the May workshop.",
+  "Our April meeting will be held in the meeting room at Aldrich Public Library, 6 Washington Street in Barre, at 6:30 PM.",
+  "A few members are planning a Saturday stop at the Perkins Museum of Geology in Burlington before the May meeting, mainly to look through the Vermont collection.",
+  "If you borrowed a field guide from the club box over winter, please bring it back before the June visit to Fisk Quarry Preserve on Isle La Motte.",
 ] as const;
 
 export const identificationTips = [
