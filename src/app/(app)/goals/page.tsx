@@ -3,6 +3,8 @@ import { GoalsWorkspace } from "@/components/goals/goals-workspace";
 import { PageHeader } from "@/components/shared/page-header";
 import { goalService } from "@/lib/services/goal.service";
 
+export const dynamic = "force-dynamic";
+
 export default async function GoalsPage() {
   let goals: any[] = [];
   try {

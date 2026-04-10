@@ -3,6 +3,8 @@ import { RocksWorkspace } from "@/components/rocks/rocks-workspace";
 import { PageHeader } from "@/components/shared/page-header";
 import { rockService } from "@/lib/services/rock.service";
 
+export const dynamic = "force-dynamic";
+
 export default async function RocksPage() {
   let rocks: any[] = [];
   try {
