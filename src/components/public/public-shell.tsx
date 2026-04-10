@@ -44,7 +44,7 @@ export function PublicShell({
         <main className={styles.content}>{children}</main>
         <footer className={styles.footer}>
           <p>Maintained by volunteers.</p>
-          <p>Last updated: March 22, 2026</p>
+          <p>Last updated: March 22, 2023</p>
           <p>Contact: clubdesk@vrocks.org</p>
         </footer>
       </div>

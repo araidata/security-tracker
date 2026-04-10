@@ -1,25 +1,25 @@
 export const recentFinds = [
   {
-    src: "/club/agate.svg",
+    src: "/club/banded-agate.png",
     alt: "Banded agate specimen",
     caption: "Banded agate from a roadside gravel pull near Barre.",
   },
   {
-    src: "/club/trilobite.svg",
+    src: "/club/trilobite.png",
     alt: "Small fossil specimen",
     caption: "Tiny trilobite fragment traded in at the February swap table.",
   },
   {
-    src: "/club/mica.svg",
+    src: "/club/mica-and-quartz-plate.png",
     alt: "Shiny mica specimen",
     caption: "Layered mica and quartz plate found during a rainy weekend trip.",
   },
 ] as const;
 
 export const upcomingTrips = [
-  "April 18, 2026 - Wrightsville Brook ledges, Montpelier area",
-  "May 9, 2026 - Old granite tailings near Barre Town",
-  "June 13, 2026 - Roadcut walk and fossil look-over near Isle La Motte",
+  "April 18, 2023 - Wrightsville Brook ledges, Montpelier area",
+  "May 9, 2023 - Old granite tailings near Barre Town",
+  "June 13, 2023 - Roadcut walk and fossil look-over near Isle La Motte",
 ] as const;
 
 export const clubNews = [
