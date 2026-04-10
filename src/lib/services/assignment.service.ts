@@ -93,4 +93,20 @@ export const assignmentService = {
 
     return assignment;
   },
+
+  async delete(id: string, userId: string) {
+    const assignment = await prisma.teamAssignment.findUnique({ where: { id } });
+    if (!assignment) throw new Error("Assignment not found");
+
+    await prisma.teamAssignment.delete({ where: { id } });
+
+    await createAuditLog({
+      userId,
+      action: "DELETE",
+      entityType: "TeamAssignment",
+      entityId: id,
+    });
+
+    return assignment;
+  },
 };

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, requireRole } from "@/lib/auth";
 import { assignmentService } from "@/lib/services/assignment.service";
 import { updateAssignmentSchema } from "@/lib/validations/assignment";
 
@@ -35,4 +35,25 @@ export async function PUT(
     session.user.id
   );
   return NextResponse.json(assignment);
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { assignmentId: string } }
+) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const roleCheck = requireRole(session.user.role, ["EXECUTIVE", "MANAGER"]);
+  if (roleCheck) return roleCheck;
+
+  try {
+    await assignmentService.delete(params.assignmentId, session.user.id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to delete assignment" },
+      { status: 404 }
+    );
+  }
 }

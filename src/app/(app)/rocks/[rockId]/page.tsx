@@ -131,9 +131,15 @@ export default async function RockDetailPage({
 
       {/* Assignments */}
       <div className="card">
-        <h3 className="mb-4 text-sm font-semibold text-text-primary">
-          Team Assignments ({rock.assignments.length})
-        </h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text-primary">
+            Team Assignments ({rock.assignments.length})
+          </h3>
+          <Link href={`/rocks/${rock.id}/assignments/new`} className="btn-primary text-sm">
+            <PlusIcon className="mr-1.5 h-4 w-4" />
+            New Assignment
+          </Link>
+        </div>
         {rock.assignments.length === 0 ? (
           <p className="py-4 text-center text-sm text-text-tertiary">
             No assignments yet
@@ -160,6 +166,13 @@ export default async function RockDetailPage({
                     </span>
                   )}
                   <TaskStatusBadge status={a.status} />
+                  <DeleteEntityButton
+                    entityName="Assignment"
+                    endpoint={`/api/assignments/${a.id}`}
+                    redirectTo={`/rocks/${rock.id}`}
+                    allowedRoles={["EXECUTIVE", "MANAGER"]}
+                    confirmMessage="Delete this assignment? This cannot be undone."
+                  />
                 </div>
               </div>
             ))}

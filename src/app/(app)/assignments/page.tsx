@@ -3,6 +3,7 @@ import { assignmentService } from "@/lib/services/assignment.service";
 import { PageHeader } from "@/components/shared/page-header";
 import { TaskStatusBadge } from "@/components/shared/status-badge";
 import { EmptyState } from "@/components/shared/empty-state";
+import { DeleteEntityButton } from "@/components/shared/delete-entity-button";
 import { formatDate } from "@/lib/utils";
 
 export default async function AssignmentsPage() {
@@ -36,6 +37,7 @@ export default async function AssignmentsPage() {
                 <th className="px-4 py-3 text-left">Owner</th>
                 <th className="px-4 py-3 text-left">Contributors</th>
                 <th className="px-4 py-3 text-left">Due Date</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -72,6 +74,15 @@ export default async function AssignmentsPage() {
                   </td>
                   <td className="px-4 py-3 text-sm text-text-tertiary">
                     {a.dueDate ? formatDate(a.dueDate) : "-"}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <DeleteEntityButton
+                      entityName="Assignment"
+                      endpoint={`/api/assignments/${a.id}`}
+                      redirectTo="/assignments"
+                      allowedRoles={["EXECUTIVE", "MANAGER"]}
+                      confirmMessage={`Delete "${a.title}"? This cannot be undone.`}
+                    />
                   </td>
                 </tr>
               ))}
