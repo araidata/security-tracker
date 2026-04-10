@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "SOF Compass",
-  description: "Annual goals, quarterly rocks, and execution reviews for security operations.",
+  title: "Vermont Amateur Rock & Fossil Collectors",
+  description: "Local Vermont hobby club for amateur rock and fossil collecting.",
 };
 
 export default function RootLayout({

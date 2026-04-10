@@ -2,6 +2,12 @@ export { default } from "next-auth/middleware";
 
 export const config = {
   matcher: [
-    "/((?!api/auth|login|_next/static|_next/image|favicon.ico).*)",
+    "/dashboard/:path*",
+    "/goals/:path*",
+    "/rocks/:path*",
+    "/assignments/:path*",
+    "/updates/:path*",
+    "/reviews/:path*",
+    "/admin/:path*",
   ],
 };

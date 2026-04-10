@@ -1,18 +1,26 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, Suspense } from "react";
-import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { Suspense, useEffect, useState } from "react";
+import { PublicShell } from "@/components/public/public-shell";
+import styles from "@/components/public/public-site.module.css";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { status } = useSession();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace(callbackUrl);
+    }
+  }, [callbackUrl, router, status]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,93 +28,66 @@ function LoginForm() {
     setError("");
 
     const result = await signIn("credentials", {
-      email,
+      email: username,
       password,
       redirect: false,
       callbackUrl,
     });
 
     if (result?.error) {
-      setError("Invalid email or password");
+      setError("Invalid username or password.");
       setLoading(false);
-    } else {
-      router.push(callbackUrl);
+      return;
     }
+
+    router.push(callbackUrl);
+    router.refresh();
   }
 
   return (
-    <div className="w-full max-w-md">
-      <div className="card p-8">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-accent/10">
-            <ShieldCheckIcon className="h-8 w-8 text-accent" />
-          </div>
-          <h1 className="text-xl font-semibold text-text-primary">
-            SOF Compass
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            Sign in to access your dashboard
+    <PublicShell activePath="">
+      <div className={styles.loginBox}>
+        <div className={styles.loginInner}>
+          <h2>Member Specimen Log Access</h2>
+          <p>
+            Access is limited to registered club members. Contact administrator
+            for assistance.
+          </p>
+
+          {error ? <div className={styles.error}>{error}</div> : null}
+
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formRow}>
+              <label htmlFor="username">Username</label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                required
+              />
+            </div>
+            <div className={styles.formRow}>
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className={styles.button} disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+
+          <p className={styles.helperText}>
+            Contact admin to request access. Self-service signup is not available.
           </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1.5 block text-sm font-medium text-text-secondary"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-field"
-              placeholder="you@organization.gov"
-              required
-              autoFocus
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1.5 block text-sm font-medium text-text-secondary"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input-field"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full py-2.5"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-xs text-text-tertiary">
-          Authorized personnel only. All access is monitored and logged.
-        </p>
       </div>
-    </div>
+    </PublicShell>
   );
 }
 

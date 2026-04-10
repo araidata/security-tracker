@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+
+export const metadata: Metadata = {
+  title: "SOF Compass",
+  description: "Internal member operations dashboard.",
+};
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
