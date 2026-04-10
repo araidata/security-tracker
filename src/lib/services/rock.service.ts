@@ -5,6 +5,12 @@ import type { CreateRockInput, UpdateRockInput } from "@/lib/validations/rock";
 import type { Department, Quarter, RockStatus } from "@prisma/client";
 import { subDays } from "date-fns";
 
+export class RockDeleteError extends Error {
+  constructor(public code: "NOT_FOUND" | "DEPENDENCY_CONFLICT") {
+    super(code);
+  }
+}
+
 export const rockService = {
   async list(filters?: {
     quarter?: string;
@@ -105,9 +111,19 @@ export const rockService = {
 
   async delete(id: string, userId: string) {
     const rock = await prisma.quarterlyRock.findUnique({ where: { id } });
-    if (!rock) throw new Error("Rock not found");
+    if (!rock) throw new RockDeleteError("NOT_FOUND");
 
-    await prisma.quarterlyRock.delete({ where: { id } });
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.quarterlyReviewRock.deleteMany({
+          where: { rockId: id },
+        });
+
+        await tx.quarterlyRock.delete({ where: { id } });
+      });
+    } catch {
+      throw new RockDeleteError("DEPENDENCY_CONFLICT");
+    }
 
     await createAuditLog({
       userId,

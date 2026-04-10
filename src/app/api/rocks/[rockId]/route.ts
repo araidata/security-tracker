@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession, requireRole } from "@/lib/auth";
-import { rockService } from "@/lib/services/rock.service";
+import { rockService, RockDeleteError } from "@/lib/services/rock.service";
 import { updateRockSchema } from "@/lib/validations/rock";
 
 export async function GET(
@@ -46,6 +46,26 @@ export async function DELETE(
   const roleCheck = requireRole(session.user.role, ["EXECUTIVE", "MANAGER"]);
   if (roleCheck) return roleCheck;
 
-  await rockService.delete(params.rockId, session.user.id);
-  return NextResponse.json({ success: true });
+  try {
+    await rockService.delete(params.rockId, session.user.id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    if (error instanceof RockDeleteError) {
+      if (error.code === "NOT_FOUND") {
+        return NextResponse.json({ error: "Rock not found." }, { status: 404 });
+      }
+
+      if (error.code === "DEPENDENCY_CONFLICT") {
+        return NextResponse.json(
+          {
+            error:
+              "This rock still has linked records that must be removed before it can be deleted.",
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    throw error;
+  }
 }
