@@ -17,6 +17,11 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Vermont Amateur Rock & Fossil Collectors",
   description: "Local Vermont hobby club for amateur rock and fossil collecting.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
