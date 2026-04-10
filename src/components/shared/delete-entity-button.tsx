@@ -13,12 +13,14 @@ export function DeleteEntityButton({
   redirectTo,
   allowedRoles,
   confirmMessage,
+  compact = false,
 }: {
   entityName: string;
   endpoint: string;
   redirectTo: string;
   allowedRoles: Role[];
   confirmMessage: string;
+  compact?: boolean;
 }) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -60,9 +62,18 @@ export function DeleteEntityButton({
 
   return (
     <div className="flex flex-col items-end gap-2">
-      <button type="button" onClick={handleDelete} disabled={isDeleting} className="btn-danger">
-        <TrashIcon className="mr-1.5 h-4 w-4" />
-        {isDeleting ? `Deleting ${entityName}...` : `Delete ${entityName}`}
+      <button
+        type="button"
+        onClick={handleDelete}
+        disabled={isDeleting}
+        className={
+          compact
+            ? "inline-flex items-center justify-center rounded-full border border-status-off-track/30 bg-status-off-track px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-status-off-track transition-colors duration-hover hover:bg-status-off-track/20 disabled:cursor-not-allowed disabled:opacity-50"
+            : "btn-danger"
+        }
+      >
+        <TrashIcon className={compact ? "mr-1 h-3.5 w-3.5" : "mr-1.5 h-4 w-4"} />
+        {isDeleting ? (compact ? "Deleting" : `Deleting ${entityName}...`) : compact ? "Delete" : `Delete ${entityName}`}
       </button>
       {error ? (
         <p className="max-w-xs text-right text-xs text-status-off-track">{error}</p>

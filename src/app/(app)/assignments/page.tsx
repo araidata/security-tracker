@@ -62,7 +62,7 @@ export default async function AssignmentsPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <TaskStatusBadge status={a.status} />
+                    <TaskStatusBadge status={a.status} compact />
                   </td>
                   <td className="px-4 py-3 text-sm text-text-secondary">
                     {a.owner.name}
@@ -82,6 +82,7 @@ export default async function AssignmentsPage() {
                       redirectTo="/assignments"
                       allowedRoles={["EXECUTIVE", "MANAGER"]}
                       confirmMessage={`Delete "${a.title}"? This cannot be undone.`}
+                      compact
                     />
                   </td>
                 </tr>
