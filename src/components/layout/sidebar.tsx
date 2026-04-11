@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { DEPARTMENT_CONFIG, DEPARTMENT_ORDER } from "@/lib/constants";
+import { getDepartmentHref } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 import {
   ChartBarIcon,
@@ -29,6 +31,15 @@ const navigation = [
 const reviewLinks = [
   { name: "Monthly", href: "/reviews/monthly", icon: CalendarDaysIcon },
   { name: "Quarterly", href: "/reviews/quarterly", icon: ClipboardDocumentCheckIcon },
+];
+
+const scheduleLinks = [
+  { name: "Org Schedule", href: "/org", icon: CalendarDaysIcon },
+  ...DEPARTMENT_ORDER.map((department) => ({
+    name: `${DEPARTMENT_CONFIG[department].label} Team`,
+    href: getDepartmentHref(department),
+    icon: UserGroupIcon,
+  })),
 ];
 
 const adminNavigation = [
@@ -67,6 +78,22 @@ export function Sidebar() {
                 active={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
               />
             ))}
+          </div>
+
+          <div className="mt-6">
+            <p className="eyebrow px-3">Schedules</p>
+            <div className="mt-2 space-y-1">
+              {scheduleLinks.map((item) => (
+                <NavItem
+                  key={item.href}
+                  href={item.href}
+                  icon={item.icon}
+                  name={item.name}
+                  active={pathname === item.href}
+                  compact
+                />
+              ))}
+            </div>
           </div>
 
           <div className="mt-6">

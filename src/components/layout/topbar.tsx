@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { DEPARTMENT_CONFIG } from "@/lib/constants";
+import { getDepartmentFromSlug } from "@/lib/schedule";
 import { getFiscalYear, getInitials, getQuarterFromDate } from "@/lib/utils";
 import {
   ArrowRightOnRectangleIcon,
@@ -16,18 +18,35 @@ const routeNames: Record<string, string> = {
   "/rocks": "Quarterly Rocks",
   "/assignments": "Assignments",
   "/updates": "Weekly Updates",
+  "/org": "Org Schedule",
   "/reviews/monthly": "Monthly Reviews",
   "/reviews/quarterly": "Quarterly Reviews",
   "/admin/users": "User Directory",
   "/admin/audit-log": "Audit Log",
 };
 
+function getPageTitle(pathname: string): string {
+  const directMatch =
+    Object.entries(routeNames).find(([path]) => pathname === path || (path !== "/dashboard" && pathname.startsWith(path)))?.[1];
+
+  if (directMatch) return directMatch;
+
+  if (pathname.startsWith("/teams/")) {
+    const teamSlug = pathname.split("/")[2];
+    const department = teamSlug ? getDepartmentFromSlug(teamSlug) : null;
+    if (department) {
+      return `${DEPARTMENT_CONFIG[department].label} Team Schedule`;
+    }
+  }
+
+  return "Mission Control";
+}
+
 export function Topbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  const pageTitle =
-    Object.entries(routeNames).find(([path]) => pathname.startsWith(path))?.[1] || "Mission Control";
+  const pageTitle = getPageTitle(pathname);
 
   const quarter = getQuarterFromDate();
   const year = getFiscalYear();
