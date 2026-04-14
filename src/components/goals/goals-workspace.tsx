@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowTopRightOnSquareIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { useMemo, useState } from "react";
+import { ArrowDownIcon, ArrowTopRightOnSquareIcon, ArrowUpIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { DepartmentBadge } from "@/components/shared/department-badge";
 import { PriorityBadge } from "@/components/shared/priority-badge";
 import { GoalStatusBadge } from "@/components/shared/status-badge";
@@ -12,9 +12,10 @@ import {
   PRIORITY_CONFIG,
   STATUS_CONFIG,
 } from "@/lib/constants";
-import { formatDate, formatPercent } from "@/lib/utils";
+import { cn, formatDate, formatPercent } from "@/lib/utils";
 
 type DepartmentKey = keyof typeof DEPARTMENT_CONFIG;
+type SortDir = "asc" | "desc";
 
 interface GoalRow {
   id: string;
@@ -25,222 +26,266 @@ interface GoalRow {
   priority: keyof typeof PRIORITY_CONFIG;
   completionPct: number;
   targetDate: Date | string;
+  updatedAt?: Date | string;
   owner: { name: string };
   _count: { rocks: number };
 }
 
-type DensityMode = "DETAILED" | "CONDENSED";
-type OrganizationMode = "GROUPED" | "ALL";
 type DepartmentFilter = "ALL" | DepartmentKey;
+type GroupMode = "DEPT" | "FLAT";
+
+// ─── Sort helpers ─────────────────────────────────────────────────────────────
+
+function getField(goal: GoalRow, key: string): string | number | Date {
+  switch (key) {
+    case "owner.name": return goal.owner.name;
+    case "updatedAt": return goal.updatedAt ? new Date(goal.updatedAt) : new Date(0);
+    case "targetDate": return new Date(goal.targetDate);
+    case "completionPct": return goal.completionPct;
+    case "_count.rocks": return goal._count.rocks;
+    case "department": return DEPARTMENT_ORDER.indexOf(goal.department);
+    default: return (goal as unknown as Record<string, string | number>)[key] ?? "";
+  }
+}
+
+function sortGoals(goals: GoalRow[], key: string, dir: SortDir): GoalRow[] {
+  return [...goals].sort((a, b) => {
+    const av = getField(a, key);
+    const bv = getField(b, key);
+    let cmp = 0;
+    if (av instanceof Date && bv instanceof Date) {
+      cmp = av.getTime() - bv.getTime();
+    } else if (typeof av === "number" && typeof bv === "number") {
+      cmp = av - bv;
+    } else {
+      cmp = String(av).localeCompare(String(bv));
+    }
+    return dir === "asc" ? cmp : -cmp;
+  });
+}
+
+function exportCSV(goals: GoalRow[]) {
+  const headers = ["Title", "Dept", "Owner", "Status", "Priority", "%", "Rocks", "Target"];
+  const rows = goals.map((g) => [
+    g.title,
+    g.department,
+    g.owner.name,
+    g.status,
+    g.priority,
+    g.completionPct,
+    g._count.rocks,
+    formatDate(g.targetDate),
+  ]);
+  const csv = [headers, ...rows]
+    .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `goals-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── Main workspace ───────────────────────────────────────────────────────────
 
 export function GoalsWorkspace({ goals }: { goals: GoalRow[] }) {
-  const [density, setDensity] = useState<DensityMode>("CONDENSED");
-  const [organization, setOrganization] = useState<OrganizationMode>("GROUPED");
-  const [departmentFilter, setDepartmentFilter] = useState<DepartmentFilter>("ALL");
+  const [deptFilter, setDeptFilter] = useState<DepartmentFilter>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
+  const [groupMode, setGroupMode] = useState<GroupMode>("DEPT");
+  const [sortKey, setSortKey] = useState<string>("department");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const filteredGoals = goals
-    .filter((goal) => departmentFilter === "ALL" || goal.department === departmentFilter)
-    .sort((a, b) => {
-      const departmentDelta =
-        DEPARTMENT_ORDER.indexOf(a.department) - DEPARTMENT_ORDER.indexOf(b.department);
-      if (departmentDelta !== 0) return departmentDelta;
-      return a.title.localeCompare(b.title);
+  const filteredSorted = useMemo(() => {
+    const filtered = goals.filter((g) => {
+      if (deptFilter !== "ALL" && g.department !== deptFilter) return false;
+      if (statusFilter !== "ALL" && g.status !== statusFilter) return false;
+      if (priorityFilter !== "ALL" && g.priority !== priorityFilter) return false;
+      return true;
     });
+    return sortGoals(filtered, sortKey, sortDir);
+  }, [goals, deptFilter, statusFilter, priorityFilter, sortKey, sortDir]);
 
-  const groupedGoals = DEPARTMENT_ORDER.map((department) => ({
-    department,
-    items: filteredGoals.filter((goal) => goal.department === department),
-  })).filter((group) => group.items.length > 0);
+  const groupedByDept = useMemo(
+    () =>
+      DEPARTMENT_ORDER.map((dept) => ({
+        key: dept,
+        label: DEPARTMENT_CONFIG[dept].label,
+        items: filteredSorted.filter((g) => g.department === dept),
+      })).filter((g) => g.items.length > 0),
+    [filteredSorted]
+  );
 
-  const isCondensed = density === "CONDENSED";
-  const showGrouped = organization === "GROUPED";
+  function handleSort(key: string) {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(key); setSortDir("asc"); }
+  }
+
+  const thProps = { currentKey: sortKey, currentDir: sortDir, onSort: handleSort };
 
   return (
-    <div className="space-y-4">
-      <WorkspaceControls
-        density={density}
-        organization={organization}
-        departmentFilter={departmentFilter}
-        onDensityChange={setDensity}
-        onOrganizationChange={setOrganization}
-        onDepartmentFilterChange={(value) => setDepartmentFilter(value as DepartmentFilter)}
-      />
+    <div className="space-y-3">
+      {/* Filter toolbar */}
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background-secondary/80 px-3 py-2.5">
+        {/* Dept chips */}
+        <div className="flex items-center gap-1.5">
+          <DeptChip label="All" active={deptFilter === "ALL"} onClick={() => setDeptFilter("ALL")} />
+          {DEPARTMENT_ORDER.map((d) => (
+            <DeptChip
+              key={d}
+              label={DEPARTMENT_CONFIG[d].shortLabel}
+              active={deptFilter === d}
+              onClick={() => setDeptFilter(d)}
+            />
+          ))}
+        </div>
 
-      {showGrouped ? (
-        <div className="space-y-4">
-          {groupedGoals.map((group) => (
-            <section key={group.department} className="table-shell">
-              <div className="flex flex-col gap-3 border-b border-border px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="eyebrow">{DEPARTMENT_CONFIG[group.department].label}</p>
-                  <h2 className="mt-2 text-xl font-semibold text-text-primary">
-                    {group.items.length} goals in this department
-                  </h2>
-                </div>
-                <div className="text-xs uppercase tracking-[0.16em] text-text-tertiary">
-                  Meeting workspace
-                </div>
+        <div className="h-4 w-px bg-border" />
+
+        {/* Status */}
+        <FilterSelect
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={[
+            { value: "ALL", label: "All Status" },
+            ...Object.entries(STATUS_CONFIG).map(([k, v]) => ({ value: k, label: v.label })),
+          ]}
+        />
+
+        {/* Priority */}
+        <FilterSelect
+          value={priorityFilter}
+          onChange={setPriorityFilter}
+          options={[
+            { value: "ALL", label: "All Priority" },
+            ...Object.entries(PRIORITY_CONFIG).map(([k, v]) => ({ value: k, label: v.label })),
+          ]}
+        />
+
+        {/* Group */}
+        <FilterSelect
+          value={groupMode}
+          onChange={(v) => setGroupMode(v as GroupMode)}
+          options={[
+            { value: "DEPT", label: "By Dept" },
+            { value: "FLAT", label: "Flat" },
+          ]}
+        />
+
+        <div className="h-4 w-px bg-border" />
+
+        <span className="text-[10px] uppercase tracking-[0.16em] text-text-tertiary">
+          {filteredSorted.length} goals
+        </span>
+
+        <div className="ml-auto">
+          <button
+            type="button"
+            onClick={() => exportCSV(filteredSorted)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-semibold text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
+          >
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Table */}
+      {groupMode === "DEPT" ? (
+        <div className="space-y-3">
+          {groupedByDept.map((group) => (
+            <section key={group.key} className="table-shell">
+              <div className="flex items-center justify-between border-b border-border px-4 py-2">
+                <span className="text-xs font-semibold text-text-primary">{group.label}</span>
+                <span className="text-[10px] uppercase tracking-[0.16em] text-text-tertiary">{group.items.length} goals</span>
               </div>
-              <GoalsTable goals={group.items} condensed={isCondensed} />
+              <GoalsTable goals={group.items} {...thProps} />
             </section>
           ))}
         </div>
       ) : (
         <div className="table-shell">
-          <div className="flex flex-col gap-3 border-b border-border px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="eyebrow">All Departments</p>
-              <h2 className="mt-2 text-xl font-semibold text-text-primary">
-                Cross-functional goal list
-              </h2>
-            </div>
-            <div className="text-xs uppercase tracking-[0.16em] text-text-tertiary">
-              {filteredGoals.length} goals shown
-            </div>
+          <div className="flex items-center justify-between border-b border-border px-4 py-2">
+            <span className="text-xs font-semibold text-text-primary">All Goals</span>
+            <span className="text-[10px] uppercase tracking-[0.16em] text-text-tertiary">{filteredSorted.length} goals</span>
           </div>
-          <GoalsTable goals={filteredGoals} condensed={isCondensed} />
+          <GoalsTable goals={filteredSorted} {...thProps} />
         </div>
       )}
     </div>
   );
 }
 
-function WorkspaceControls({
-  density,
-  organization,
-  departmentFilter,
-  onDensityChange,
-  onOrganizationChange,
-  onDepartmentFilterChange,
-}: {
-  density: DensityMode;
-  organization: OrganizationMode;
-  departmentFilter: DepartmentFilter;
-  onDensityChange: (value: DensityMode) => void;
-  onOrganizationChange: (value: OrganizationMode) => void;
-  onDepartmentFilterChange: (value: string) => void;
-}) {
-  return (
-    <div className="card flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-      <div className="flex-1">
-        <p className="eyebrow">Meeting Mode</p>
-        <p className="mt-2 text-sm text-text-secondary">
-          Filter directly by department, or keep everything visible in a department-sorted meeting sheet.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <DepartmentChip
-            label="All Departments"
-            active={departmentFilter === "ALL"}
-            onClick={() => onDepartmentFilterChange("ALL")}
-          />
-          {DEPARTMENT_ORDER.map((department) => (
-            <DepartmentChip
-              key={department}
-              label={DEPARTMENT_CONFIG[department].label}
-              active={departmentFilter === department}
-              onClick={() => onDepartmentFilterChange(department)}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <ToggleGroup
-          label="Department View"
-          value={organization}
-          options={[
-            { label: "Grouped by Dept", value: "GROUPED" },
-            { label: "Single Sheet", value: "ALL" },
-          ]}
-          onChange={(value) => onOrganizationChange(value as OrganizationMode)}
-        />
-        <ToggleGroup
-          label="Density"
-          value={density}
-          options={[
-            { label: "Condensed", value: "CONDENSED" },
-            { label: "Detailed", value: "DETAILED" },
-          ]}
-          onChange={(value) => onDensityChange(value as DensityMode)}
-        />
-        <div className="flex min-w-[12rem] flex-col gap-2 text-xs uppercase tracking-[0.16em] text-text-tertiary">
-          Department Filter
-          <div className="rounded-2xl border border-border bg-background px-4 py-3 text-sm font-medium normal-case tracking-normal text-text-primary">
-            {departmentFilter === "ALL"
-              ? "Showing all departments"
-              : `Filtered to ${DEPARTMENT_CONFIG[departmentFilter].label}`}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ─── Goals Table ──────────────────────────────────────────────────────────────
 
-function GoalsTable({ goals, condensed }: { goals: GoalRow[]; condensed: boolean }) {
+function GoalsTable({
+  goals, currentKey, currentDir, onSort,
+}: {
+  goals: GoalRow[];
+  currentKey: string; currentDir: SortDir; onSort: (k: string) => void;
+}) {
+  const thProps = { currentKey, currentDir, onSort };
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full">
         <thead>
           <tr className="table-header">
-            <th className={condensed ? "px-4 py-3 text-left" : "px-5 py-4 text-left"}>Goal</th>
-            <th className={condensed ? "px-3 py-3 text-left" : "px-4 py-4 text-left"}>Dept</th>
-            <th className={condensed ? "px-3 py-3 text-left" : "px-4 py-4 text-left"}>Owner</th>
-            <th className={condensed ? "px-3 py-3 text-left" : "px-4 py-4 text-left"}>Status</th>
-            <th className={condensed ? "px-3 py-3 text-left" : "px-4 py-4 text-left"}>Priority</th>
-            <th className={condensed ? "px-3 py-3 text-left" : "px-4 py-4 text-left"}>Completion</th>
-            <th className={condensed ? "px-3 py-3 text-left" : "px-4 py-4 text-left"}>Rocks</th>
-            <th className={condensed ? "px-3 py-3 text-left" : "px-4 py-4 text-left"}>Target</th>
-            <th className={condensed ? "px-4 py-3 text-left" : "px-5 py-4 text-left"}>Actions</th>
+            <SortTh label="Goal" sortKey="title" className="pl-4" {...thProps} />
+            <SortTh label="Dept" sortKey="department" {...thProps} />
+            <SortTh label="Owner" sortKey="owner.name" {...thProps} />
+            <SortTh label="Status" sortKey="status" {...thProps} />
+            <SortTh label="Priority" sortKey="priority" {...thProps} />
+            <SortTh label="%" sortKey="completionPct" {...thProps} />
+            <SortTh label="Rocks" sortKey="_count.rocks" {...thProps} />
+            <SortTh label="Target" sortKey="targetDate" {...thProps} />
+            <th className="px-4 py-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {goals.map((goal) => (
-            <tr key={goal.id} className="table-row align-top">
-              <td className={condensed ? "px-4 py-3" : "px-5 py-5"}>
-                <Link href={`/goals/${goal.id}`} className="text-sm font-semibold text-text-primary transition-colors hover:text-accent">
+            <tr key={goal.id} className="table-row">
+              <td className="px-4 py-1.5 max-w-[220px]">
+                <Link
+                  href={`/goals/${goal.id}`}
+                  className="block truncate text-xs font-semibold text-text-primary transition-colors hover:text-accent"
+                >
                   {goal.title}
                 </Link>
-                {!condensed && (
-                  <p className="mt-2 max-w-md text-sm leading-6 text-text-secondary">
-                    {goal.description}
-                  </p>
-                )}
               </td>
-              <td className={condensed ? "px-3 py-3" : "px-4 py-5"}>
+              <td className="px-3 py-1.5">
                 <DepartmentBadge department={goal.department} />
               </td>
-              <td className={condensed ? "px-3 py-3 text-sm text-text-secondary" : "px-4 py-5 text-sm text-text-secondary"}>
+              <td className="px-3 py-1.5 text-xs text-text-secondary whitespace-nowrap">
                 {goal.owner.name}
               </td>
-              <td className={condensed ? "px-3 py-3" : "px-4 py-5"}>
-                <GoalStatusBadge status={goal.status} />
+              <td className="px-3 py-1.5">
+                <GoalStatusBadge status={goal.status} compact />
               </td>
-              <td className={condensed ? "px-3 py-3" : "px-4 py-5"}>
+              <td className="px-3 py-1.5">
                 <PriorityBadge priority={goal.priority} />
               </td>
-              <td className={condensed ? "px-3 py-3" : "px-4 py-5"}>
-                <div className={condensed ? "w-28" : "w-36"}>
-                  <div className="mb-2 flex items-center justify-between text-xs text-text-secondary">
-                    <span>{formatPercent(goal.completionPct)}</span>
-                  </div>
-                  <div className="progress-track">
-                    <div className="progress-bar" style={{ width: `${Math.min(goal.completionPct, 100)}%` }} />
-                  </div>
-                </div>
+              <td className="px-3 py-1.5">
+                <span className="text-xs text-text-secondary">{formatPercent(goal.completionPct)}</span>
               </td>
-              <td className={condensed ? "px-3 py-3 text-sm text-text-secondary" : "px-4 py-5 text-sm text-text-secondary"}>
-                {goal._count.rocks}
-              </td>
-              <td className={condensed ? "px-3 py-3 text-sm text-text-secondary" : "px-4 py-5 text-sm text-text-secondary"}>
+              <td className="px-3 py-1.5 text-xs text-text-secondary">{goal._count.rocks}</td>
+              <td className="px-3 py-1.5 text-xs text-text-secondary whitespace-nowrap">
                 {formatDate(goal.targetDate)}
               </td>
-              <td className={condensed ? "px-4 py-3" : "px-5 py-5"}>
-                <div className="flex flex-wrap gap-2">
-                  <Link href={`/goals/${goal.id}`} className="btn-secondary px-3 py-2 text-xs">
-                    <ArrowTopRightOnSquareIcon className="mr-1.5 h-3.5 w-3.5" />
+              <td className="px-4 py-1.5">
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    href={`/goals/${goal.id}`}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-semibold text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
+                  >
+                    <ArrowTopRightOnSquareIcon className="h-3 w-3" />
                     Open
                   </Link>
-                  <Link href={`/goals/${goal.id}/edit`} className="btn-primary px-3 py-2 text-xs">
-                    <PencilSquareIcon className="mr-1.5 h-3.5 w-3.5" />
+                  <Link
+                    href={`/goals/${goal.id}/edit`}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[10px] font-semibold text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
+                  >
+                    <PencilSquareIcon className="h-3 w-3" />
                     Edit
                   </Link>
                 </div>
@@ -253,60 +298,63 @@ function GoalsTable({ goals, condensed }: { goals: GoalRow[]; condensed: boolean
   );
 }
 
-function ToggleGroup({
-  label,
-  value,
-  options,
-  onChange,
+// ─── Shared sub-components ───────────────────────────────────────────────────
+
+function SortTh({
+  label, sortKey: key, currentKey, currentDir, onSort, className,
 }: {
-  label: string;
-  value: string;
-  options: { label: string; value: string }[];
-  onChange: (value: string) => void;
+  label: string; sortKey: string; currentKey: string; currentDir: SortDir;
+  onSort: (k: string) => void; className?: string;
 }) {
+  const active = currentKey === key;
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-xs uppercase tracking-[0.16em] text-text-tertiary">{label}</span>
-      <div className="flex rounded-full border border-border bg-background p-1">
-        {options.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => onChange(option.value)}
-            className={
-              value === option.value
-                ? "rounded-full bg-accent px-3 py-2 text-xs font-semibold text-background"
-                : "rounded-full px-3 py-2 text-xs font-semibold text-text-secondary"
-            }
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-    </div>
+    <th
+      className={cn("cursor-pointer select-none px-3 py-2 text-left whitespace-nowrap", className)}
+      onClick={() => onSort(key)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {active ? (
+          currentDir === "asc"
+            ? <ArrowUpIcon className="h-3 w-3" />
+            : <ArrowDownIcon className="h-3 w-3" />
+        ) : null}
+      </span>
+    </th>
   );
 }
 
-function DepartmentChip({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
+function DeptChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={
+      className={cn(
+        "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors",
         active
-          ? "rounded-full border border-accent/40 bg-accent px-4 py-2 text-sm font-semibold text-background"
-          : "rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
-      }
+          ? "border-accent/40 bg-accent text-background"
+          : "border-border bg-background text-text-secondary hover:border-border-strong hover:text-text-primary"
+      )}
     >
       {label}
     </button>
+  );
+}
+
+function FilterSelect({
+  value, onChange, options,
+}: {
+  value: string; onChange: (v: string) => void; options: { value: string; label: string }[];
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="inline-edit-select rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-semibold text-text-secondary focus:border-accent focus:text-text-primary"
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
   );
 }
