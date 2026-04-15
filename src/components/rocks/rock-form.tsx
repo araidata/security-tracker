@@ -81,7 +81,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card max-w-2xl space-y-5">
+    <form onSubmit={handleSubmit} className="card max-w-2xl space-y-3">
       {error && (
         <div className="rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
           {error}

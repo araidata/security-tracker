@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/layout/app-shell";
 import { Sidebar } from "@/components/layout/sidebar";
+import { SidebarProvider } from "@/components/layout/sidebar-store";
 import { Topbar } from "@/components/layout/topbar";
 
 export const metadata: Metadata = {
@@ -9,16 +11,18 @@ export const metadata: Metadata = {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen px-4 py-4 lg:px-5">
-      <Sidebar />
-      <div className="flex min-h-[calc(100vh-2rem)] flex-1 flex-col lg:pl-[18.5rem]">
-        <Topbar />
-        <main className="flex-1 pt-5">
-          <div className="surface-outline min-h-[calc(100vh-8rem)] px-5 py-5 sm:px-6 sm:py-6">
-            <div className="mx-auto max-w-[1500px]">{children}</div>
-          </div>
-        </main>
+    <SidebarProvider>
+      <div className="min-h-screen px-3 py-3">
+        <Sidebar />
+        <AppShell>
+          <Topbar />
+          <main className="flex-1 pt-3">
+            <div className="surface-outline min-h-[calc(100vh-6rem)] px-4 py-4">
+              <div className="mx-auto max-w-[1500px]">{children}</div>
+            </div>
+          </main>
+        </AppShell>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

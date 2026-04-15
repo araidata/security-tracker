@@ -22,29 +22,29 @@ export function KPICard({
 }: KPICardProps) {
   return (
     <div className="card-hover h-full">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-3">
         <div>
           <p className="metric-label">{title}</p>
           <p
             className={cn(
-              "mt-3 text-4xl font-semibold tracking-tight text-text-primary",
+              "mt-1.5 text-2xl font-semibold tracking-tight text-text-primary",
               accentColor
             )}
           >
             {value}
           </p>
-          {subtitle && <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 text-xs text-text-secondary">{subtitle}</p>}
         </div>
         {icon && (
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-background text-text-secondary">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-text-secondary">
             {icon}
           </div>
         )}
       </div>
       {trend && trendLabel && (
-        <div className="mt-5 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em]">
-          {trend === "up" && <ArrowUpIcon className="h-3.5 w-3.5 text-status-on-track" />}
-          {trend === "down" && <ArrowDownIcon className="h-3.5 w-3.5 text-status-off-track" />}
+        <div className="mt-3 flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.14em]">
+          {trend === "up" && <ArrowUpIcon className="h-3 w-3 text-status-on-track" />}
+          {trend === "down" && <ArrowDownIcon className="h-3 w-3 text-status-off-track" />}
           <span
             className={cn(
               trend === "up" && "text-status-on-track",

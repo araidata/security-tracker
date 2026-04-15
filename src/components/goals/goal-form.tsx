@@ -21,7 +21,7 @@ interface GoalFormProps {
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="mb-3 border-b border-border pb-1">
+    <div className="mb-2 border-b border-border pb-1">
       <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
         {title}
       </span>
@@ -76,7 +76,7 @@ export function GoalForm({ goal, users }: GoalFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card w-full space-y-6">
+    <form onSubmit={handleSubmit} className="card w-full space-y-4">
       {error && (
         <div className="rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
           {error}

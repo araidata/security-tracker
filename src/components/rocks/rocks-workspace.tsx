@@ -504,7 +504,7 @@ export function RocksWorkspace({ rocks: initialRocks }: { rocks: RockRow[] }) {
                   <section key={group.goalId} className="table-shell">
                     <button
                       type="button"
-                      className="flex w-full items-center gap-3 border-b border-border px-4 py-2.5 text-left transition-colors hover:bg-background-tertiary/40"
+                      className="flex w-full items-center gap-3 border-b border-border px-4 py-1.5 text-left transition-colors hover:bg-background-tertiary/40"
                       onClick={() =>
                         setExpandedGoals((prev) => {
                           const next = new Set(prev);
@@ -595,7 +595,7 @@ function FilterToolbar({
   onExport: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background-secondary/80 px-3 py-2.5">
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background-secondary/80 px-3 py-1.5">
       {/* Dept chips */}
       <div className="flex items-center gap-1.5">
         <DeptChip label="All" active={deptFilter === "ALL"} onClick={() => onDeptFilter("ALL")} />

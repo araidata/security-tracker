@@ -128,7 +128,7 @@ export function GoalsWorkspace({ goals }: { goals: GoalRow[] }) {
   return (
     <div className="space-y-3">
       {/* Filter toolbar */}
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background-secondary/80 px-3 py-2.5">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-background-secondary/80 px-3 py-1.5">
         {/* Dept chips */}
         <div className="flex items-center gap-1.5">
           <DeptChip label="All" active={deptFilter === "ALL"} onClick={() => setDeptFilter("ALL")} />
@@ -196,7 +196,7 @@ export function GoalsWorkspace({ goals }: { goals: GoalRow[] }) {
         <div className="space-y-3">
           {groupedByDept.map((group) => (
             <section key={group.key} className="table-shell">
-              <div className="flex items-center justify-between border-b border-border px-4 py-2">
+              <div className="flex items-center justify-between border-b border-border px-4 py-1.5">
                 <span className="text-xs font-semibold text-text-primary">{group.label}</span>
                 <span className="text-[10px] uppercase tracking-[0.16em] text-text-tertiary">{group.items.length} goals</span>
               </div>

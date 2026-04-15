@@ -18,7 +18,6 @@ const routeNames: Record<string, string> = {
   "/rocks": "Quarterly Rocks",
   "/assignments": "Assignments",
   "/updates": "Weekly Updates",
-  "/org": "Org Schedule",
   "/reviews/monthly": "Monthly Reviews",
   "/reviews/quarterly": "Quarterly Reviews",
   "/admin/users": "User Directory",
@@ -27,7 +26,9 @@ const routeNames: Record<string, string> = {
 
 function getPageTitle(pathname: string): string {
   const directMatch =
-    Object.entries(routeNames).find(([path]) => pathname === path || (path !== "/dashboard" && pathname.startsWith(path)))?.[1];
+    Object.entries(routeNames).find(
+      ([path]) => pathname === path || (path !== "/dashboard" && pathname.startsWith(path))
+    )?.[1];
 
   if (directMatch) return directMatch;
 
@@ -47,41 +48,39 @@ export function Topbar() {
   const { data: session } = useSession();
 
   const pageTitle = getPageTitle(pathname);
-
   const quarter = getQuarterFromDate();
   const year = getFiscalYear();
 
   return (
-    <header className="sticky top-4 z-30">
-      <div className="surface-outline flex h-[76px] items-center justify-between px-4 sm:px-5">
+    <header className="sticky top-3 z-30">
+      <div className="surface-outline flex h-[52px] items-center justify-between px-4">
         <div className="min-w-0">
-          <p className="eyebrow">SOF Compass</p>
-          <div className="mt-1 flex items-center gap-3">
-            <h2 className="truncate text-lg font-semibold text-text-primary">{pageTitle}</h2>
-            <span className="hidden rounded-full border border-border bg-background px-3 py-1 text-xs text-text-secondary md:inline-flex">
+          <div className="flex items-center gap-2.5">
+            <h2 className="truncate text-sm font-semibold text-text-primary">{pageTitle}</h2>
+            <span className="hidden rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-text-secondary md:inline-flex">
               FY{year} {quarter}
             </span>
           </div>
         </div>
 
-        <div className="ml-5 flex items-center gap-3">
-          <div className="hidden min-w-[18rem] items-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 lg:flex">
-            <MagnifyingGlassIcon className="h-4 w-4 text-text-tertiary" />
-            <span className="truncate text-sm text-text-tertiary">
+        <div className="ml-4 flex items-center gap-2">
+          <div className="hidden min-w-[14rem] items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 lg:flex">
+            <MagnifyingGlassIcon className="h-3.5 w-3.5 text-text-tertiary" />
+            <span className="truncate text-xs text-text-tertiary">
               Search {pageTitle.toLowerCase()}...
             </span>
           </div>
-          <IconButton icon={<BellIcon className="h-4 w-4" />} />
-          <IconButton icon={<Cog6ToothIcon className="h-4 w-4" />} />
+          <IconButton icon={<BellIcon className="h-3.5 w-3.5" />} />
+          <IconButton icon={<Cog6ToothIcon className="h-3.5 w-3.5" />} />
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="btn-secondary px-3 sm:px-4"
+            className="btn-secondary px-3"
           >
-            <ArrowRightOnRectangleIcon className="h-4 w-4 sm:mr-2" />
+            <ArrowRightOnRectangleIcon className="h-3.5 w-3.5 sm:mr-1.5" />
             <span className="hidden sm:inline">Logout</span>
           </button>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-xs font-semibold text-accent">
-            {getInitials(session?.user?.name || "Mission Control")}
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-[11px] font-semibold text-accent">
+            {getInitials(session?.user?.name || "MC")}
           </div>
         </div>
       </div>
@@ -91,7 +90,7 @@ export function Topbar() {
 
 function IconButton({ icon }: { icon: React.ReactNode }) {
   return (
-    <button className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-text-secondary transition-all duration-hover hover:border-border-strong hover:text-text-primary">
+    <button className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-text-secondary transition-all duration-hover hover:border-border-strong hover:text-text-primary">
       {icon}
     </button>
   );

@@ -48,13 +48,13 @@ export default async function DashboardPage() {
       : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title="Mission Control"
         description="Live program health across strategic goals, active rocks, and weekly execution signals."
       />
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-4">
         <KPICard
           title="Security score"
           value={`${securityScore}%`}
@@ -98,9 +98,9 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.85fr)]">
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 2xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.85fr)]">
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
             <GoalStatusChart stats={goalStats} />
             <DepartmentChart data={departmentSummary} />
           </div>
@@ -108,48 +108,48 @@ export default async function DashboardPage() {
         </div>
 
         <div className="card">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-center justify-between">
             <div>
               <p className="eyebrow">Operational Log</p>
-              <h3 className="mt-2 text-2xl font-semibold text-text-primary">Weekly update watch</h3>
+              <h3 className="mt-1 text-base font-semibold text-text-primary">Weekly update watch</h3>
             </div>
-            <span className="rounded-full border border-border bg-background px-3 py-1.5 text-xs text-text-secondary">
+            <span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-text-secondary">
               Last 14 days
             </span>
           </div>
 
           {recentUpdates.length === 0 ? (
-            <div className="mt-6 rounded-[24px] border border-dashed border-border bg-background/60 px-5 py-10 text-center text-sm text-text-secondary">
+            <div className="mt-3 rounded-[18px] border border-dashed border-border bg-background/60 px-4 py-6 text-center text-sm text-text-secondary">
               No flagged updates in the last two weeks.
             </div>
           ) : (
-            <div className="mt-6 space-y-3">
+            <div className="mt-3 space-y-1.5">
               {recentUpdates.map((update: any) => (
                 <div
                   key={update.id}
-                  className="rounded-[24px] border border-border bg-background/60 px-4 py-4"
+                  className="rounded-[16px] border border-border bg-background/60 px-3 py-2"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-text-primary">{update.rock.title}</p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-text-tertiary">
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-text-tertiary">
                         {update.author.name}
                       </p>
                     </div>
                     <ConfidenceIndicator confidence={update.confidenceLevel} />
                   </div>
-                  <p className="mt-4 text-sm leading-6 text-text-secondary">{update.progressNotes}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-text-secondary">{update.progressNotes}</p>
                   {update.blockers && (
-                    <p className="mt-3 text-sm text-status-blocked">
+                    <p className="mt-1 text-xs text-status-blocked">
                       <span className="font-semibold text-text-primary">Blockers:</span> {update.blockers}
                     </p>
                   )}
                   {update.risks && (
-                    <p className="mt-2 text-sm text-status-at-risk">
+                    <p className="mt-1 text-xs text-status-at-risk">
                       <span className="font-semibold text-text-primary">Risks:</span> {update.risks}
                     </p>
                   )}
-                  <div className="mt-4 flex items-center justify-between text-xs text-text-tertiary">
+                  <div className="mt-2 flex items-center justify-between text-[10px] text-text-tertiary">
                     <span>Week of {formatDate(update.weekOf)}</span>
                     <span>{formatPercent(update.completionPct)}</span>
                   </div>
