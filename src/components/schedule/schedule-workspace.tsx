@@ -408,7 +408,7 @@ function UnscheduledAssignments({ assignments }: { assignments: ScheduleItem[] }
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm text-text-tertiary">Owner: {assignment.ownerName}</span>
-              <Link href={assignment.href} className="btn-secondary px-3 py-2 text-xs">
+              <Link href={assignment.href} className="btn-secondary">
                 Open Rock
               </Link>
             </div>

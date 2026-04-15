@@ -55,7 +55,7 @@ export function MonthlyReviewDialog() {
   if (!open) {
     return (
       <button onClick={() => setOpen(true)} className="btn-primary">
-        <PlusIcon className="mr-1.5 h-4 w-4" />
+        <PlusIcon className="mr-1 h-3.5 w-3.5" />
         New Review
       </button>
     );
@@ -65,16 +65,16 @@ export function MonthlyReviewDialog() {
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
         <div className="card w-full max-w-lg max-h-[90vh] overflow-y-auto">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-text-primary">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-text-primary">
               Create Monthly Review
             </h3>
             <button onClick={() => setOpen(false)} className="text-text-tertiary hover:text-text-primary">
-              <XMarkIcon className="h-5 w-5" />
+              <XMarkIcon className="h-4 w-4" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-2.5">
             {error && (
               <div className="rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
                 {error}
@@ -82,7 +82,7 @@ export function MonthlyReviewDialog() {
             )}
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Goal</label>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Goal</label>
               <select name="goalId" className="input-field" required>
                 <option value="">Select goal</option>
                 {goals.map((g) => (
@@ -93,7 +93,7 @@ export function MonthlyReviewDialog() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-text-secondary">Month</label>
+                <label className="mb-1 block text-xs font-medium text-text-secondary">Month</label>
                 <select name="month" defaultValue={new Date().getMonth() + 1} className="input-field">
                   {Array.from({ length: 12 }, (_, i) => (
                     <option key={i + 1} value={i + 1}>
@@ -103,13 +103,13 @@ export function MonthlyReviewDialog() {
                 </select>
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-text-secondary">Fiscal Year</label>
+                <label className="mb-1 block text-xs font-medium text-text-secondary">Fiscal Year</label>
                 <input name="fiscalYear" type="number" defaultValue={new Date().getFullYear()} className="input-field" />
               </div>
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Overall Status</label>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Overall Status</label>
               <select name="overallStatus" defaultValue="ON_TRACK" className="input-field">
                 <option value="ON_TRACK">On Track</option>
                 <option value="AT_RISK">At Risk</option>
@@ -119,23 +119,23 @@ export function MonthlyReviewDialog() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Summary</label>
-              <textarea name="summary" className="input-field min-h-[80px]" required />
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Summary</label>
+              <textarea name="summary" className="input-field min-h-[56px]" required />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Highlights</label>
-              <textarea name="highlights" className="input-field min-h-[60px]" />
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Highlights</label>
+              <textarea name="highlights" className="input-field min-h-[44px]" />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Concerns</label>
-              <textarea name="concerns" className="input-field min-h-[60px]" />
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Concerns</label>
+              <textarea name="concerns" className="input-field min-h-[44px]" />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Leadership Notes</label>
-              <textarea name="leadershipNotes" className="input-field min-h-[60px]" />
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Leadership Notes</label>
+              <textarea name="leadershipNotes" className="input-field min-h-[44px]" />
             </div>
 
             <div className="flex gap-3 pt-2">

@@ -1037,7 +1037,7 @@ function InlineQuickUpdateForm({
             <input type="checkbox" checked={draft.needsAttention} onChange={(e) => set("needsAttention", e.target.checked)} className="h-3.5 w-3.5" />
             Flag for attention
           </label>
-          <button type="button" onClick={onSubmit} disabled={submitting} className="btn-primary px-4 py-2 text-xs">
+          <button type="button" onClick={onSubmit} disabled={submitting} className="btn-primary">
             {submitting ? "Saving…" : "Save Update"}
           </button>
         </div>
@@ -1133,7 +1133,7 @@ function DetailPanel({
               type="button"
               onClick={onNoteSubmit}
               disabled={noteSubmitting || !note.trim()}
-              className="btn-primary mt-2 w-full py-1.5 text-xs"
+              className="btn-primary mt-1.5 w-full"
             >
               {noteSubmitting ? "Saving…" : "Save Note (⌘Enter)"}
             </button>

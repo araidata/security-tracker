@@ -236,7 +236,7 @@ export function UsersWorkspace({
               onClick={handleCreateMode}
               className="btn-secondary px-3"
             >
-              <XMarkIcon className="mr-1.5 h-4 w-4" />
+              <XMarkIcon className="mr-1 h-3.5 w-3.5" />
               New
             </button>
           ) : null}
@@ -262,7 +262,7 @@ export function UsersWorkspace({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+            <label className="mb-1 block text-xs font-medium text-text-secondary">
               Name
             </label>
             <input
@@ -274,7 +274,7 @@ export function UsersWorkspace({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+            <label className="mb-1 block text-xs font-medium text-text-secondary">
               Email
             </label>
             <input
@@ -288,7 +288,7 @@ export function UsersWorkspace({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+              <label className="mb-1 block text-xs font-medium text-text-secondary">
                 Role
               </label>
               <select
@@ -305,7 +305,7 @@ export function UsersWorkspace({
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+              <label className="mb-1 block text-xs font-medium text-text-secondary">
                 Department
               </label>
               <select
@@ -325,7 +325,7 @@ export function UsersWorkspace({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+            <label className="mb-1 block text-xs font-medium text-text-secondary">
               {isEditing ? "Reset Password" : "Temporary Password"}
             </label>
             <input
@@ -385,7 +385,7 @@ export function UsersWorkspace({
             onClick={handleCreateMode}
             className="btn-secondary px-3"
           >
-            <PlusIcon className="mr-1.5 h-4 w-4" />
+            <PlusIcon className="mr-1 h-3.5 w-3.5" />
             Add User
           </button>
         </div>
@@ -467,9 +467,9 @@ export function UsersWorkspace({
                       <button
                         type="button"
                         onClick={() => handleEditUser(user)}
-                        className="btn-secondary px-3 py-2 text-xs"
+                        className="btn-secondary"
                       >
-                        <PencilSquareIcon className="mr-1.5 h-4 w-4" />
+                        <PencilSquareIcon className="mr-1 h-3.5 w-3.5" />
                         {user.id === selectedUserId ? "Editing" : "Edit"}
                       </button>
                     </td>

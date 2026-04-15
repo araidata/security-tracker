@@ -20,7 +20,7 @@ export default async function UpdatesPage() {
       : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title="Weekly Updates"
         description="Progress briefs, blockers, and decisions captured from each active rock."
@@ -40,7 +40,7 @@ export default async function UpdatesPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1.25fr)_360px]">
-            <div className="space-y-4">
+            <div className="space-y-3">
               {updates.map((update) => (
                 <article key={update.id} className="card">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

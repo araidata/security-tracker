@@ -16,7 +16,7 @@ export default async function GoalsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title="Annual Goals"
         description="Use grouped department rollups for leadership review, then switch to the condensed sheet when you need a fast meeting update view."

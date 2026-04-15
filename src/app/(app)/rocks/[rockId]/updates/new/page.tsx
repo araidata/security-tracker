@@ -62,7 +62,7 @@ export default function NewWeeklyUpdatePage() {
         description="This update will be appended to the rock's log and cannot be edited."
       />
 
-      <form onSubmit={handleSubmit} className="card max-w-2xl space-y-5">
+      <form onSubmit={handleSubmit} className="card max-w-2xl space-y-3">
         {error && (
           <div className="rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
             {error}
@@ -71,7 +71,7 @@ export default function NewWeeklyUpdatePage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+            <label className="mb-1 block text-xs font-medium text-text-secondary">
               Week Of (Monday)
             </label>
             <input
@@ -83,7 +83,7 @@ export default function NewWeeklyUpdatePage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+            <label className="mb-1 block text-xs font-medium text-text-secondary">
               Completion %
             </label>
             <input
@@ -99,19 +99,19 @@ export default function NewWeeklyUpdatePage() {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+          <label className="mb-1 block text-xs font-medium text-text-secondary">
             Progress Notes
           </label>
           <textarea
             name="progressNotes"
-            className="input-field min-h-[100px]"
+            className="input-field min-h-[64px]"
             placeholder="What was accomplished this week?"
             required
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+          <label className="mb-1 block text-xs font-medium text-text-secondary">
             Blockers
           </label>
           <textarea
@@ -122,7 +122,7 @@ export default function NewWeeklyUpdatePage() {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+          <label className="mb-1 block text-xs font-medium text-text-secondary">
             Risks
           </label>
           <textarea
@@ -133,7 +133,7 @@ export default function NewWeeklyUpdatePage() {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+          <label className="mb-1 block text-xs font-medium text-text-secondary">
             Decisions Needed
           </label>
           <textarea
@@ -145,7 +145,7 @@ export default function NewWeeklyUpdatePage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+            <label className="mb-1 block text-xs font-medium text-text-secondary">
               Confidence Level
             </label>
             <select

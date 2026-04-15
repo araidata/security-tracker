@@ -16,7 +16,7 @@ export default async function RocksPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
         title="Quarterly Rocks"
         description="Run by department during meetings, then flip to the condensed sheet when you need the fastest possible update workflow."

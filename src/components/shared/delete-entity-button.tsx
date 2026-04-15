@@ -72,7 +72,7 @@ export function DeleteEntityButton({
             : "btn-danger"
         }
       >
-        <TrashIcon className={compact ? "mr-1 h-3.5 w-3.5" : "mr-1.5 h-4 w-4"} />
+        <TrashIcon className="mr-1 h-3.5 w-3.5" />
         {isDeleting ? (compact ? "Deleting" : `Deleting ${entityName}...`) : compact ? "Delete" : `Delete ${entityName}`}
       </button>
       {error ? (

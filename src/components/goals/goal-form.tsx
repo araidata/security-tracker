@@ -157,7 +157,7 @@ export function GoalForm({ goal, users }: GoalFormProps) {
             <textarea
               name="description"
               defaultValue={goal?.description}
-              className="input-field min-h-[90px]"
+              className="input-field min-h-[60px]"
               required
             />
           </div>

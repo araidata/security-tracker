@@ -89,17 +89,17 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
       )}
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-text-secondary">Title</label>
+        <label className="mb-1 block text-xs font-medium text-text-secondary">Title</label>
         <input name="title" defaultValue={rock?.title} className="input-field" required />
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-text-secondary">Description</label>
-        <textarea name="description" defaultValue={rock?.description} className="input-field min-h-[100px]" required />
+        <label className="mb-1 block text-xs font-medium text-text-secondary">Description</label>
+        <textarea name="description" defaultValue={rock?.description} className="input-field min-h-[64px]" required />
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-text-secondary">Linked Goal</label>
+        <label className="mb-1 block text-xs font-medium text-text-secondary">Linked Goal</label>
         <select name="goalId" defaultValue={rock?.goalId || defaultGoalId} className="input-field" required>
           <option value="">Select a goal</option>
           {goals.map((g) => (
@@ -110,7 +110,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
 
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">Quarter</label>
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Quarter</label>
           <select name="quarter" defaultValue={rock?.quarter || "Q2"} className="input-field">
             <option value="Q1">Q1</option>
             <option value="Q2">Q2</option>
@@ -119,18 +119,18 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
           </select>
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">Fiscal Year</label>
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Fiscal Year</label>
           <input name="fiscalYear" type="number" defaultValue={rock?.fiscalYear || new Date().getFullYear()} className="input-field" required />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">Target Date</label>
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Target Date</label>
           <input name="targetDate" type="date" defaultValue={rock?.targetDate ? new Date(rock.targetDate).toISOString().split("T")[0] : ""} className="input-field" required />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">Department</label>
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Department</label>
           <select name="department" defaultValue={rock?.department || "SEC_OPS"} className="input-field">
             <option value="SEC_OPS">SecOps</option>
             <option value="SAE">SAE</option>
@@ -138,7 +138,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
           </select>
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-text-secondary">Priority</label>
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Priority</label>
           <select name="priority" defaultValue={rock?.priority || "MEDIUM"} className="input-field">
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
@@ -149,7 +149,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-text-secondary">Owner</label>
+        <label className="mb-1 block text-xs font-medium text-text-secondary">Owner</label>
         <select name="ownerId" defaultValue={rock?.ownerId} className="input-field" required>
           <option value="">Select an owner</option>
           {users.map((u) => (
@@ -159,7 +159,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-text-secondary">KPI Metric</label>
+        <label className="mb-1 block text-xs font-medium text-text-secondary">KPI Metric</label>
         <input name="kpiMetric" defaultValue={rock?.kpiMetric || ""} className="input-field" placeholder="e.g., MTTR < 72 hours" />
       </div>
 
@@ -167,7 +167,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
         <>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Status</label>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Status</label>
               <select name="status" defaultValue={rock.status} className="input-field">
                 <option value="NOT_STARTED">Not Started</option>
                 <option value="IN_PROGRESS">In Progress</option>
@@ -177,7 +177,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Confidence</label>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Confidence</label>
               <select name="confidence" defaultValue={rock.confidence} className="input-field">
                 <option value="HIGH">High</option>
                 <option value="MEDIUM">Medium</option>
@@ -185,12 +185,12 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-text-secondary">Completion %</label>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Completion %</label>
               <input name="completionPct" type="number" min="0" max="100" defaultValue={rock.completionPct || 0} className="input-field" />
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">Blockers</label>
+            <label className="mb-1 block text-xs font-medium text-text-secondary">Blockers</label>
             <textarea name="blockers" defaultValue={rock.blockers || ""} className="input-field min-h-[60px]" />
           </div>
         </>

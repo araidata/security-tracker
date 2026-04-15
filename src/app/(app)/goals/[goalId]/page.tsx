@@ -24,10 +24,10 @@ export default async function GoalDetailPage({
   if (!goal) notFound();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader title={goal.title}>
         <Link href={`/goals/${goal.id}/edit`} className="btn-secondary">
-          <PencilIcon className="mr-1.5 h-4 w-4" />
+          <PencilIcon className="mr-1 h-3.5 w-3.5" />
           Edit
         </Link>
         <DeleteEntityButton
@@ -60,7 +60,7 @@ export default async function GoalDetailPage({
           )}
         </div>
 
-        <div className="card space-y-4">
+        <div className="card space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-text-secondary">Status</span>
             <GoalStatusBadge status={goal.status} />

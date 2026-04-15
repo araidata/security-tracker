@@ -24,14 +24,14 @@ export default async function RockDetailPage({
   if (!rock) notFound();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader title={rock.title}>
         <Link href={`/rocks/${rock.id}/updates/new`} className="btn-primary">
-          <PlusIcon className="mr-1.5 h-4 w-4" />
+          <PlusIcon className="mr-1 h-3.5 w-3.5" />
           Weekly Update
         </Link>
         <Link href={`/rocks/${rock.id}/edit`} className="btn-secondary">
-          <PencilIcon className="mr-1.5 h-4 w-4" />
+          <PencilIcon className="mr-1 h-3.5 w-3.5" />
           Edit
         </Link>
         <DeleteEntityButton
@@ -72,7 +72,7 @@ export default async function RockDetailPage({
           )}
         </div>
 
-        <div className="card space-y-4">
+        <div className="card space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-text-secondary">Status</span>
             <RockStatusBadge status={rock.status} />
@@ -136,7 +136,7 @@ export default async function RockDetailPage({
             Team Assignments ({rock.assignments.length})
           </h3>
           <Link href={`/rocks/${rock.id}/assignments/new`} className="btn-primary text-sm">
-            <PlusIcon className="mr-1.5 h-4 w-4" />
+            <PlusIcon className="mr-1 h-3.5 w-3.5" />
             New Assignment
           </Link>
         </div>
@@ -193,7 +193,7 @@ export default async function RockDetailPage({
             </Link>
           </div>
         ) : (
-          <div className="relative space-y-4 pl-6">
+          <div className="relative space-y-3 pl-6">
             <div className="absolute bottom-0 left-2 top-0 w-px bg-border" />
             {rock.weeklyUpdates.map((update) => (
               <div key={update.id} className="relative">
