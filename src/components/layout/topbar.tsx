@@ -16,10 +16,9 @@ const routeNames: Record<string, string> = {
   "/dashboard": "Mission Control",
   "/goals": "Annual Goals",
   "/rocks": "Quarterly Rocks",
-  "/assignments": "Assignments",
-  "/updates": "Weekly Updates",
-  "/reviews/monthly": "Monthly Reviews",
-  "/reviews/quarterly": "Quarterly Reviews",
+  "/weekly": "Weekly",
+  "/monthly": "Monthly",
+  "/quarterly": "Quarterly",
   "/admin/users": "User Directory",
   "/admin/audit-log": "Audit Log",
 };

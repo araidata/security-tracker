@@ -1,16 +1,35 @@
-import { AttentionList } from "@/components/dashboard/attention-list";
-import { DepartmentChart, GoalStatusChart } from "@/components/dashboard/charts";
-import { KPICard } from "@/components/dashboard/kpi-card";
+import Link from "next/link";
+import { RockStatusBadge } from "@/components/shared/status-badge";
 import { ConfidenceIndicator } from "@/components/shared/confidence-indicator";
 import { PageHeader } from "@/components/shared/page-header";
 import { dashboardService } from "@/lib/services/dashboard.service";
-import { formatDate, formatPercent } from "@/lib/utils";
-import {
-  ChartBarIcon,
-  CubeIcon,
-  ExclamationTriangleIcon,
-  FlagIcon,
-} from "@heroicons/react/24/outline";
+import { DEPARTMENT_CONFIG, DEPARTMENT_ORDER } from "@/lib/constants";
+import { formatPercent, formatDate } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
+
+function getIssueLabel(item: any): string {
+  if (item.status === "BLOCKED") return "Blocked";
+  if (item.status === "OVERDUE") return "Overdue";
+  if (item.isStale) return "Stale";
+  if (item.confidence === "LOW") return "Low Confidence";
+  return "Flagged";
+}
+
+function getIssueColor(item: any): string {
+  if (item.status === "BLOCKED") return "text-status-blocked";
+  if (item.status === "OVERDUE") return "text-status-off-track";
+  if (item.isStale) return "text-status-at-risk";
+  return "text-text-secondary";
+}
+
+function RiskPill({ count }: { count: number }) {
+  if (count === 0)
+    return <span className="rounded-full border border-status-on-track/30 bg-status-on-track/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-status-on-track">Low Risk</span>;
+  if (count <= 2)
+    return <span className="rounded-full border border-status-at-risk/30 bg-status-at-risk/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-status-at-risk">Moderate</span>;
+  return <span className="rounded-full border border-status-off-track/30 bg-status-off-track/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-status-off-track">High Risk</span>;
+}
 
 export default async function DashboardPage() {
   const currentYear = new Date().getFullYear();
@@ -26,139 +45,131 @@ export default async function DashboardPage() {
   } catch {
     kpis = {
       goalStats: { total: 0, onTrack: 0, atRisk: 0, offTrack: 0, completed: 0 },
-      rockStats: {
-        total: 0,
-        notStarted: 0,
-        inProgress: 0,
-        completed: 0,
-        blocked: 0,
-        overdue: 0,
-        avgCompletion: 0,
-      },
+      rockStats: { total: 0, notStarted: 0, inProgress: 0, completed: 0, blocked: 0, overdue: 0, avgCompletion: 0 },
       attentionItems: [],
       recentUpdates: [],
     };
     departmentSummary = [];
   }
 
-  const { goalStats, rockStats, attentionItems, recentUpdates } = kpis;
-  const securityScore =
-    goalStats.total > 0
-      ? Math.round(((goalStats.onTrack + goalStats.completed) / goalStats.total) * 100)
-      : 0;
+  const { attentionItems, recentUpdates } = kpis;
+
+  // Count at-risk rocks per department from attentionItems
+  const atRiskByDept: Record<string, number> = {};
+  for (const item of attentionItems) {
+    atRiskByDept[item.department] = (atRiskByDept[item.department] || 0) + 1;
+  }
 
   return (
     <div className="space-y-3">
-      <PageHeader
-        title="Mission Control"
-        description="Live program health across strategic goals, active rocks, and weekly execution signals."
-      />
+      <PageHeader title="Mission Control" />
 
-      <div className="grid grid-cols-1 gap-3 xl:grid-cols-4">
-        <KPICard
-          title="Security score"
-          value={`${securityScore}%`}
-          subtitle={`${goalStats.completed} directives complete`}
-          trend={securityScore >= 75 ? "up" : securityScore >= 50 ? "neutral" : "down"}
-          trendLabel={`${goalStats.onTrack} goals on track`}
-          icon={<FlagIcon className="h-5 w-5" />}
-          accentColor={securityScore >= 75 ? "text-status-on-track" : undefined}
-        />
-        <KPICard
-          title="Linked rocks"
-          value={rockStats.total}
-          subtitle={`${rockStats.inProgress} in execution`}
-          trend={rockStats.blocked > 0 ? "down" : "up"}
-          trendLabel={`${rockStats.completed} completed`}
-          icon={<CubeIcon className="h-5 w-5" />}
-        />
-        <KPICard
-          title="Average completion"
-          value={formatPercent(rockStats.avgCompletion)}
-          subtitle="Across active quarterly work"
-          trend={rockStats.avgCompletion >= 70 ? "up" : rockStats.avgCompletion >= 45 ? "neutral" : "down"}
-          trendLabel={`${rockStats.overdue} overdue`}
-          icon={<ChartBarIcon className="h-5 w-5" />}
-          accentColor={
-            rockStats.avgCompletion >= 70
-              ? "text-status-on-track"
-              : rockStats.avgCompletion >= 45
-                ? "text-status-at-risk"
-                : "text-status-off-track"
-          }
-        />
-        <KPICard
-          title="Attention queue"
-          value={attentionItems.length}
-          subtitle="Blocked, overdue, or stale"
-          trend={attentionItems.length === 0 ? "up" : "down"}
-          trendLabel={attentionItems.length === 0 ? "No escalations" : "Operator review needed"}
-          icon={<ExclamationTriangleIcon className="h-5 w-5" />}
-          accentColor={attentionItems.length === 0 ? "text-status-on-track" : "text-status-off-track"}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 2xl:grid-cols-[minmax(0,1.55fr)_minmax(300px,0.85fr)]">
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-            <GoalStatusChart stats={goalStats} />
-            <DepartmentChart data={departmentSummary} />
-          </div>
-          <AttentionList items={attentionItems as any} />
-        </div>
-
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="eyebrow">Operational Log</p>
-              <h3 className="mt-1 text-base font-semibold text-text-primary">Weekly update watch</h3>
-            </div>
-            <span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-text-secondary">
-              Last 14 days
+      {/* Section 1: Attention Queue */}
+      <section>
+        <div className="mb-1.5 flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">Attention Queue</p>
+          {attentionItems.length > 0 && (
+            <span className="rounded-full border border-status-off-track/30 bg-status-off-track/10 px-2 py-0.5 text-[10px] font-semibold text-status-off-track">
+              {attentionItems.length} item{attentionItems.length !== 1 ? "s" : ""}
             </span>
-          </div>
-
-          {recentUpdates.length === 0 ? (
-            <div className="mt-3 rounded-[18px] border border-dashed border-border bg-background/60 px-4 py-6 text-center text-sm text-text-secondary">
-              No flagged updates in the last two weeks.
-            </div>
-          ) : (
-            <div className="mt-3 space-y-1.5">
-              {recentUpdates.map((update: any) => (
-                <div
-                  key={update.id}
-                  className="rounded-[16px] border border-border bg-background/60 px-3 py-2"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-text-primary">{update.rock.title}</p>
-                      <p className="text-[10px] uppercase tracking-[0.16em] text-text-tertiary">
-                        {update.author.name}
-                      </p>
-                    </div>
-                    <ConfidenceIndicator confidence={update.confidenceLevel} />
-                  </div>
-                  <p className="mt-1.5 text-xs leading-5 text-text-secondary">{update.progressNotes}</p>
-                  {update.blockers && (
-                    <p className="mt-1 text-xs text-status-blocked">
-                      <span className="font-semibold text-text-primary">Blockers:</span> {update.blockers}
-                    </p>
-                  )}
-                  {update.risks && (
-                    <p className="mt-1 text-xs text-status-at-risk">
-                      <span className="font-semibold text-text-primary">Risks:</span> {update.risks}
-                    </p>
-                  )}
-                  <div className="mt-2 flex items-center justify-between text-[10px] text-text-tertiary">
-                    <span>Week of {formatDate(update.weekOf)}</span>
-                    <span>{formatPercent(update.completionPct)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
           )}
         </div>
-      </div>
+        <div className="surface-outline overflow-hidden">
+          {attentionItems.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-text-tertiary">No items require attention.</div>
+          ) : (
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border bg-background-secondary/60">
+                  <th className="px-3 py-2 text-left font-medium text-text-tertiary">Rock</th>
+                  <th className="px-3 py-2 text-left font-medium text-text-tertiary">Goal</th>
+                  <th className="px-3 py-2 text-left font-medium text-text-tertiary">Owner</th>
+                  <th className="px-3 py-2 text-left font-medium text-text-tertiary">Issue</th>
+                  <th className="px-3 py-2 text-left font-medium text-text-tertiary">Status</th>
+                  <th className="px-3 py-2 text-right font-medium text-text-tertiary">%</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attentionItems.map((item: any, i: number) => (
+                  <tr key={item.id} className={`border-b border-border last:border-0 ${i % 2 === 1 ? "bg-background-secondary/30" : ""}`}>
+                    <td className="px-3 py-1.5 font-medium text-text-primary">
+                      <Link href={`/rocks/${item.id}`} className="hover:text-accent transition-colors">
+                        {item.title}
+                      </Link>
+                    </td>
+                    <td className="px-3 py-1.5 text-text-secondary">{item.goal?.title ?? "—"}</td>
+                    <td className="px-3 py-1.5 text-text-secondary">{item.owner?.name ?? "—"}</td>
+                    <td className={`px-3 py-1.5 font-medium ${getIssueColor(item)}`}>{getIssueLabel(item)}</td>
+                    <td className="px-3 py-1.5">
+                      <RockStatusBadge status={item.status} compact />
+                    </td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-text-secondary">{formatPercent(item.completionPct)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+
+      {/* Section 2: Execution Summary (department risk) */}
+      <section>
+        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-text-tertiary">Execution Summary</p>
+        <div className="surface-outline overflow-hidden">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border bg-background-secondary/60">
+                <th className="px-3 py-2 text-left font-medium text-text-tertiary">Department</th>
+                <th className="px-3 py-2 text-right font-medium text-text-tertiary">Rocks</th>
+                <th className="px-3 py-2 text-right font-medium text-text-tertiary">Avg %</th>
+                <th className="px-3 py-2 text-right font-medium text-text-tertiary">At Risk / Blocked</th>
+                <th className="px-3 py-2 text-left font-medium text-text-tertiary">Risk Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              {DEPARTMENT_ORDER.map((dept, i) => {
+                const summary = departmentSummary.find((s: any) => s.department === dept);
+                const atRisk = atRiskByDept[dept] || 0;
+                return (
+                  <tr key={dept} className={`border-b border-border last:border-0 ${i % 2 === 1 ? "bg-background-secondary/30" : ""}`}>
+                    <td className="px-3 py-1.5 font-medium text-text-primary">{DEPARTMENT_CONFIG[dept].label}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-text-secondary">{summary?.rockCount ?? 0}</td>
+                    <td className="px-3 py-1.5 text-right tabular-nums text-text-secondary">
+                      {summary ? formatPercent(summary.rockAvgCompletion) : "—"}
+                    </td>
+                    <td className={`px-3 py-1.5 text-right tabular-nums font-semibold ${atRisk > 0 ? "text-status-at-risk" : "text-text-tertiary"}`}>
+                      {atRisk}
+                    </td>
+                    <td className="px-3 py-1.5">
+                      <RiskPill count={atRisk} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Section 3: Recent Activity */}
+      {recentUpdates.length > 0 && (
+        <section>
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-text-tertiary">Recent Activity</p>
+          <div className="surface-outline divide-y divide-border overflow-hidden">
+            {recentUpdates.slice(0, 5).map((update: any) => (
+              <div key={update.id} className="flex items-center gap-3 px-3 py-2">
+                <Link href={`/rocks/${update.rock.id}`} className="min-w-0 flex-1 font-medium text-text-primary hover:text-accent transition-colors text-xs truncate">
+                  {update.rock.title}
+                </Link>
+                <span className="shrink-0 tabular-nums text-[11px] text-text-secondary">{formatPercent(update.completionPct)}</span>
+                <span className="shrink-0 text-[11px] text-text-tertiary">{update.author.name}</span>
+                <span className="min-w-0 max-w-[28rem] truncate text-[11px] text-text-tertiary">{update.progressNotes}</span>
+                <ConfidenceIndicator confidence={update.confidenceLevel} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

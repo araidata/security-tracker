@@ -75,125 +75,95 @@ export function AssignmentForm({ rockId, users }: AssignmentFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card w-full space-y-6">
+    <form onSubmit={handleSubmit} className="card w-full space-y-3">
       {error && (
         <div className="rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
           {error}
         </div>
       )}
 
-      {/* Basic Info */}
-      <section>
-        <SectionHeader title="Basic Info" />
-        <div className="space-y-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Title
-            </label>
-            <input name="title" className="input-field" required />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Description
-            </label>
-            <textarea name="description" className="input-field min-h-[80px]" />
-          </div>
+      {/* Row 1: Title (2/3) | Due Date (1/3) */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-2">
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Title *</label>
+          <input name="title" className="input-field" required />
         </div>
-      </section>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Due Date</label>
+          <input name="dueDate" type="date" className="input-field" />
+        </div>
+      </div>
 
-      {/* Ownership */}
-      <section>
-        <SectionHeader title="Ownership" />
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Owner
-            </label>
-            <select name="ownerId" className="input-field" required>
-              <option value="">Select an owner</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
+      {/* Row 2: Description (2/3) | Owner (1/3) */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-2">
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Description</label>
+          <textarea name="description" className="input-field min-h-[68px]" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-text-secondary">Owner *</label>
+          <select name="ownerId" className="input-field" required>
+            <option value="">Select owner</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Row 3: Contributors (full width) */}
+      <div>
+        <label className="mb-1 block text-xs font-medium text-text-secondary">Contributors</label>
+
+        {/* Selected chips */}
+        {selectedContributors.length > 0 && (
+          <div className="mb-1.5 flex flex-wrap gap-1">
+            {selectedContributors.map((id) => {
+              const u = users.find((u) => u.id === id)!;
+              return (
+                <span key={id} className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-2 py-0.5 text-xs text-accent">
                   {u.name}
-                </option>
-              ))}
-            </select>
+                  <button type="button" onClick={() => toggleContributor(id)} className="hover:text-accent/70 leading-none">×</button>
+                </span>
+              );
+            })}
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Due Date
-            </label>
-            <input name="dueDate" type="date" className="input-field" />
-          </div>
-        </div>
+        )}
 
-        <div className="mt-3">
-          <label className="mb-1 block text-sm font-medium text-text-secondary">
-            Contributors
-          </label>
-          <div className="space-y-2">
-            {selectedContributors.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {selectedContributors.map((id) => {
-                  const u = users.find((u) => u.id === id)!;
-                  return (
-                    <span
-                      key={id}
-                      className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-2 py-0.5 text-xs text-accent"
-                    >
-                      {u.name}
-                      <button
-                        type="button"
-                        onClick={() => toggleContributor(id)}
-                        className="hover:text-accent/70"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-            <input
-              type="text"
-              placeholder="Search contributors..."
-              value={contributorSearch}
-              onChange={(e) => setContributorSearch(e.target.value)}
-              className="input-field"
-            />
-            {contributorSearch && (
-              <div className="flex flex-wrap gap-1.5 rounded-lg border border-border p-2">
-                {filteredUsers.length === 0 && (
-                  <span className="text-xs text-text-tertiary">No matches</span>
-                )}
-                {filteredUsers.map((u) => (
-                  <button
-                    key={u.id}
-                    type="button"
-                    onClick={() => {
-                      toggleContributor(u.id);
-                      setContributorSearch("");
-                    }}
-                    className="rounded-md border border-border px-2 py-0.5 text-xs text-text-secondary hover:bg-background-tertiary hover:text-text-primary"
-                  >
-                    {u.name}{" "}
-                    <span className="text-text-tertiary">({u.department})</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Filter contributors..."
+          value={contributorSearch}
+          onChange={(e) => setContributorSearch(e.target.value)}
+          className="input-field mb-1"
+        />
+
+        {/* Always-visible scrollable list */}
+        <div className="max-h-32 overflow-y-auto rounded-lg border border-border bg-background/60 p-1">
+          {filteredUsers.length === 0 ? (
+            <p className="px-2 py-1.5 text-xs text-text-tertiary">No users available</p>
+          ) : (
+            filteredUsers.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => toggleContributor(u.id)}
+                className="flex w-full items-center justify-between rounded px-2 py-1 text-xs text-text-secondary transition-colors hover:bg-background-tertiary hover:text-text-primary"
+              >
+                <span>{u.name}</span>
+                <span className="text-text-tertiary">{u.department}</span>
+              </button>
+            ))
+          )}
         </div>
-      </section>
+      </div>
 
       <div className="flex gap-3 border-t border-border pt-3">
         <button type="submit" disabled={loading} className="btn-primary">
           {loading ? "Saving..." : "Create Assignment"}
         </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="btn-secondary"
-        >
+        <button type="button" onClick={() => router.back()} className="btn-secondary">
           Cancel
         </button>
       </div>

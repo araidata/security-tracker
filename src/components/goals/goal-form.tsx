@@ -76,21 +76,19 @@ export function GoalForm({ goal, users }: GoalFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card w-full space-y-4">
+    <form onSubmit={handleSubmit} className="card w-full">
       {error && (
-        <div className="rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
+        <div className="mb-3 rounded-lg bg-status-off-track/10 p-3 text-sm text-status-off-track">
           {error}
         </div>
       )}
 
-      {/* Basic Info */}
-      <section>
-        <SectionHeader title="Basic Info" />
+      {/* 2-column layout */}
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+        {/* Left column */}
         <div className="space-y-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Title
-            </label>
+            <label className="mb-1 block text-xs font-medium text-text-secondary">Title *</label>
             <input
               name="title"
               defaultValue={goal?.title}
@@ -98,116 +96,51 @@ export function GoalForm({ goal, users }: GoalFormProps) {
               required
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Description
-            </label>
-            <textarea
-              name="description"
-              defaultValue={goal?.description}
-              className="input-field min-h-[80px]"
-              required
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Department</label>
+              <select name="department" defaultValue={goal?.department || "SEC_OPS"} className="input-field">
+                <option value="SEC_OPS">SecOps</option>
+                <option value="SAE">SAE</option>
+                <option value="GRC">GRC</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Priority</label>
+              <select name="priority" defaultValue={goal?.priority || "MEDIUM"} className="input-field">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* Classification */}
-      <section>
-        <SectionHeader title="Classification" />
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Department
-            </label>
-            <select
-              name="department"
-              defaultValue={goal?.department || "SEC_OPS"}
-              className="input-field"
-            >
-              <option value="SEC_OPS">SecOps</option>
-              <option value="SAE">SAE</option>
-              <option value="GRC">GRC</option>
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Owner
-            </label>
-            <select
-              name="ownerId"
-              defaultValue={goal?.ownerId}
-              className="input-field"
-              required
-            >
-              <option value="">Select an owner</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Priority
-            </label>
-            <select
-              name="priority"
-              defaultValue={goal?.priority || "MEDIUM"}
-              className="input-field"
-            >
-              <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-              <option value="CRITICAL">Critical</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* Timeline & Status */}
-      <section>
-        <SectionHeader title="Timeline & Status" />
-        <div className={`grid gap-4 ${goal ? "grid-cols-3" : "grid-cols-2"}`}>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Fiscal Year
-            </label>
-            <input
-              name="fiscalYear"
-              type="number"
-              defaultValue={goal?.fiscalYear || new Date().getFullYear()}
-              className="input-field"
-              required
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-text-secondary">
-              Target Date
-            </label>
-            <input
-              name="targetDate"
-              type="date"
-              defaultValue={
-                goal?.targetDate
-                  ? new Date(goal.targetDate).toISOString().split("T")[0]
-                  : ""
-              }
-              className="input-field"
-              required
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Fiscal Year *</label>
+              <input
+                name="fiscalYear"
+                type="number"
+                defaultValue={goal?.fiscalYear || new Date().getFullYear()}
+                className="input-field"
+                required
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Target Date *</label>
+              <input
+                name="targetDate"
+                type="date"
+                defaultValue={goal?.targetDate ? new Date(goal.targetDate).toISOString().split("T")[0] : ""}
+                className="input-field"
+                required
+              />
+            </div>
           </div>
           {goal && (
             <div>
-              <label className="mb-1 block text-sm font-medium text-text-secondary">
-                Status
-              </label>
-              <select
-                name="status"
-                defaultValue={goal.status || "ON_TRACK"}
-                className="input-field"
-              >
+              <label className="mb-1 block text-xs font-medium text-text-secondary">Status</label>
+              <select name="status" defaultValue={goal.status || "ON_TRACK"} className="input-field">
                 <option value="ON_TRACK">On Track</option>
                 <option value="AT_RISK">At Risk</option>
                 <option value="OFF_TRACK">Off Track</option>
@@ -216,33 +149,44 @@ export function GoalForm({ goal, users }: GoalFormProps) {
             </div>
           )}
         </div>
-      </section>
 
-      {/* Outcomes */}
-      <section>
-        <SectionHeader title="Outcomes" />
-        <div>
-          <label className="mb-1 block text-sm font-medium text-text-secondary">
-            Success Metrics
-          </label>
-          <textarea
-            name="metrics"
-            defaultValue={goal?.metrics || ""}
-            className="input-field min-h-[60px]"
-            placeholder="How will success be measured?"
-          />
+        {/* Right column */}
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-text-secondary">Description *</label>
+            <textarea
+              name="description"
+              defaultValue={goal?.description}
+              className="input-field min-h-[90px]"
+              required
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-text-secondary">Owner *</label>
+            <select name="ownerId" defaultValue={goal?.ownerId} className="input-field" required>
+              <option value="">Select an owner</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-text-secondary">Success Metrics</label>
+            <textarea
+              name="metrics"
+              defaultValue={goal?.metrics || ""}
+              className="input-field min-h-[70px]"
+              placeholder="How will success be measured?"
+            />
+          </div>
         </div>
-      </section>
+      </div>
 
-      <div className="sticky bottom-0 flex gap-3 border-t border-border bg-background-secondary pb-1 pt-3">
+      <div className="mt-4 flex gap-3 border-t border-border pt-3">
         <button type="submit" disabled={loading} className="btn-primary">
           {loading ? "Saving..." : goal ? "Update Goal" : "Create Goal"}
         </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="btn-secondary"
-        >
+        <button type="button" onClick={() => router.back()} className="btn-secondary">
           Cancel
         </button>
       </div>

@@ -6,17 +6,16 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "./sidebar-store";
 import {
+  CalendarDaysIcon,
   ChartBarIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
-  ClipboardDocumentCheckIcon,
-  ClipboardDocumentListIcon,
   Cog6ToothIcon,
   CubeIcon,
-  DocumentTextIcon,
   FlagIcon,
-  PlusIcon,
+  PresentationChartLineIcon,
   ShieldCheckIcon,
+  TableCellsIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 
@@ -24,9 +23,9 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: ChartBarIcon },
   { name: "Goals", href: "/goals", icon: FlagIcon },
   { name: "Rocks", href: "/rocks", icon: CubeIcon },
-  { name: "Assignments", href: "/assignments", icon: ClipboardDocumentListIcon },
-  { name: "Reviews", href: "/reviews/monthly", icon: ClipboardDocumentCheckIcon },
-  { name: "Updates", href: "/updates", icon: DocumentTextIcon },
+  { name: "Weekly", href: "/weekly", icon: CalendarDaysIcon },
+  { name: "Monthly", href: "/monthly", icon: TableCellsIcon },
+  { name: "Quarterly", href: "/quarterly", icon: PresentationChartLineIcon },
 ];
 
 const adminNavigation = [
@@ -112,8 +111,7 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="px-2 pt-2 border-t border-border space-y-1">
-          {/* Collapse toggle */}
+        <div className="px-2 pt-2 border-t border-border">
           <button
             type="button"
             onClick={toggle}
@@ -132,24 +130,6 @@ export function Sidebar() {
               </>
             )}
           </button>
-
-          {/* New Briefing */}
-          <Link
-            href="/updates"
-            className={cn(
-              "btn-primary w-full",
-              collapsed && "px-0 justify-center"
-            )}
-          >
-            {collapsed ? (
-              <PlusIcon className="h-4 w-4" />
-            ) : (
-              <>
-                <PlusIcon className="mr-1.5 h-3.5 w-3.5" />
-                New Briefing
-              </>
-            )}
-          </Link>
         </div>
       </div>
     </aside>
