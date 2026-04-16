@@ -181,7 +181,7 @@ function GoalSection({
       ) : (
         <div className="flex items-center gap-3">
           <p className="text-[11px] text-text-tertiary italic">No quarterly review recorded.</p>
-          <QuarterlyReviewDialog />
+          <QuarterlyReviewDialog goalId={goal.id} />
         </div>
       )}
     </div>
