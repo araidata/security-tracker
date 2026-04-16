@@ -7,7 +7,7 @@ import { PriorityBadge } from "@/components/shared/priority-badge";
 import { DepartmentBadge } from "@/components/shared/department-badge";
 import { ConfidenceIndicator } from "@/components/shared/confidence-indicator";
 import { DeleteEntityButton } from "@/components/shared/delete-entity-button";
-import { formatPercent, formatDate } from "@/lib/utils";
+import { formatPercent, formatDate, parseKpiItems } from "@/lib/utils";
 import { PencilIcon } from "@heroicons/react/24/outline";
 
 export default async function GoalDetailPage({
@@ -48,16 +48,41 @@ export default async function GoalDetailPage({
           <p className="text-sm text-text-primary leading-relaxed">
             {goal.description}
           </p>
-          {goal.metrics && (
-            <>
-              <h3 className="mb-2 mt-4 text-sm font-semibold text-text-secondary uppercase tracking-wider">
-                Success Metrics
-              </h3>
-              <p className="text-sm text-text-primary leading-relaxed">
-                {goal.metrics}
-              </p>
-            </>
-          )}
+          {goal.metrics && (() => {
+            const metricItems = parseKpiItems(goal.metrics);
+            return (
+              <>
+                <h3 className="mb-2 mt-4 text-sm font-semibold uppercase tracking-wider text-text-secondary">
+                  Success Metrics
+                </h3>
+                {metricItems.length === 0 ? (
+                  <p className="text-sm leading-relaxed text-text-primary">{goal.metrics}</p>
+                ) : (
+                  <ul className="space-y-0.5">
+                    {metricItems.map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 py-1.5">
+                        <input
+                          type="checkbox"
+                          checked={item.completed}
+                          readOnly
+                          className="h-3.5 w-3.5 shrink-0 rounded border-border accent-accent"
+                        />
+                        <span
+                          className={`text-sm ${
+                            item.completed
+                              ? "text-emerald-500 line-through"
+                              : "text-text-primary"
+                          }`}
+                        >
+                          {item.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         <div className="card space-y-3">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChecklistInput } from "@/components/shared/checklist-input";
 
 interface GoalFormProps {
   goal?: {
@@ -33,6 +34,7 @@ export function GoalForm({ goal, users }: GoalFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [metricsValue, setMetricsValue] = useState<string>(goal?.metrics || "");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -47,7 +49,7 @@ export function GoalForm({ goal, users }: GoalFormProps) {
       department: formData.get("department") as string,
       priority: formData.get("priority") as string,
       targetDate: formData.get("targetDate") as string,
-      metrics: (formData.get("metrics") as string) || undefined,
+      metrics: metricsValue || undefined,
       ownerId: formData.get("ownerId") as string,
       ...(goal ? { status: formData.get("status") as string } : {}),
     };
@@ -172,12 +174,12 @@ export function GoalForm({ goal, users }: GoalFormProps) {
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-text-secondary">Success Metrics</label>
-            <textarea
-              name="metrics"
-              defaultValue={goal?.metrics || ""}
-              className="input-field min-h-[70px]"
-              placeholder="How will success be measured?"
-            />
+            <div className="input-field py-1">
+              <ChecklistInput
+                value={metricsValue}
+                onChange={setMetricsValue}
+              />
+            </div>
           </div>
         </div>
       </div>
