@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "./sidebar-store";
 import {
+  ArrowDownTrayIcon,
   CalendarDaysIcon,
   ChartBarIcon,
   ChevronDoubleLeftIcon,
@@ -26,6 +27,7 @@ const navigation = [
   { name: "Weekly", href: "/weekly", icon: CalendarDaysIcon },
   { name: "Monthly", href: "/monthly", icon: TableCellsIcon },
   { name: "Quarterly", href: "/quarterly", icon: PresentationChartLineIcon },
+  { name: "Export", href: "/export", icon: ArrowDownTrayIcon },
 ];
 
 const adminNavigation = [

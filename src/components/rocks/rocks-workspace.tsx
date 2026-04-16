@@ -805,7 +805,6 @@ function RocksTable({
             <SortTh label="Conf" sortKey="confidence" {...thProps} />
             <SortTh label="Qtr" sortKey="quarter" {...thProps} />
             <SortTh label="Updated" sortKey="updatedAt" {...thProps} />
-            <th className="px-3 py-2 text-left">Flags</th>
             <th className="px-4 py-2 text-left">Actions</th>
           </tr>
         </thead>
@@ -831,10 +830,10 @@ function RocksTable({
                   }}
                 >
                   {/* Rock title */}
-                  <td className="px-4 py-1.5 max-w-[200px]">
+                  <td className="px-4 py-1.5 max-w-[280px]">
                     <Link
                       href={`/rocks/${rock.id}`}
-                      className="block truncate text-xs font-semibold text-text-primary transition-colors hover:text-accent"
+                      className="block whitespace-normal line-clamp-2 text-xs font-semibold text-text-primary transition-colors hover:text-accent"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {rock.title}
@@ -919,15 +918,6 @@ function RocksTable({
                   {/* Last update */}
                   <td className="px-3 py-1.5 text-xs text-text-secondary whitespace-nowrap">
                     {formatDate(rock.updatedAt)}
-                  </td>
-
-                  {/* Flags */}
-                  <td className="px-3 py-1.5">
-                    {rock.isStale && (
-                      <span className="inline-block rounded-full border border-status-at-risk/30 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-status-at-risk">
-                        Stale
-                      </span>
-                    )}
                   </td>
 
                   {/* Actions */}

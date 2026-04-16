@@ -19,6 +19,7 @@ const routeNames: Record<string, string> = {
   "/weekly": "Weekly",
   "/monthly": "Monthly",
   "/quarterly": "Quarterly",
+  "/export": "Export",
   "/admin/users": "User Directory",
   "/admin/audit-log": "Audit Log",
 };
