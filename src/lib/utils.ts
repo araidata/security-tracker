@@ -1,6 +1,23 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+export interface KpiItem {
+  text: string;
+  completed: boolean;
+}
+
+export function parseKpiItems(raw: string | null | undefined): KpiItem[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed;
+    // Legacy: plain string — treat as single incomplete item
+    return [{ text: raw, completed: false }];
+  } catch {
+    return raw.trim() ? [{ text: raw, completed: false }] : [];
+  }
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

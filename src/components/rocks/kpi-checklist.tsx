@@ -2,26 +2,11 @@
 
 import { useState, useRef, useCallback } from "react";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
-
-export interface KpiItem {
-  text: string;
-  completed: boolean;
-}
+import type { KpiItem } from "@/lib/utils";
 
 interface KpiChecklistProps {
   rockId: string;
   initialItems: KpiItem[];
-}
-
-export function parseKpiItems(raw: string | null | undefined): KpiItem[] {
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed;
-    return [{ text: raw, completed: false }];
-  } catch {
-    return raw.trim() ? [{ text: raw, completed: false }] : [];
-  }
 }
 
 export function KpiChecklist({ rockId, initialItems }: KpiChecklistProps) {

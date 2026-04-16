@@ -8,9 +8,9 @@ import { PriorityBadge } from "@/components/shared/priority-badge";
 import { DepartmentBadge } from "@/components/shared/department-badge";
 import { ConfidenceIndicator } from "@/components/shared/confidence-indicator";
 import { DeleteEntityButton } from "@/components/shared/delete-entity-button";
-import { KpiChecklist, parseKpiItems } from "@/components/rocks/kpi-checklist";
+import { KpiChecklist } from "@/components/rocks/kpi-checklist";
 import { InlineAssignmentRow } from "@/components/rocks/inline-assignment-row";
-import { formatPercent, formatDate, getDaysAgo } from "@/lib/utils";
+import { formatPercent, formatDate, getDaysAgo, parseKpiItems } from "@/lib/utils";
 import { PencilIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 export default async function RockDetailPage({
@@ -18,21 +18,24 @@ export default async function RockDetailPage({
 }: {
   params: { rockId: string };
 }) {
-  let rock: Awaited<ReturnType<typeof rockService.getById>>;
+  let rock: Awaited<ReturnType<typeof rockService.getById>> = null;
   let users: { id: string; name: string }[] = [];
 
   try {
-    [rock, users] = await Promise.all([
-      rockService.getById(params.rockId),
-      prisma.user.findMany({
-        select: { id: true, name: true },
-        orderBy: { name: "asc" },
-      }),
-    ]);
+    rock = await rockService.getById(params.rockId);
   } catch {
     notFound();
   }
   if (!rock) notFound();
+
+  try {
+    users = await prisma.user.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+  } catch {
+    // DB not connected — inline edit owner dropdown will be empty
+  }
 
   const kpiItems = parseKpiItems(rock.kpiMetric);
 
