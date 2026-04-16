@@ -25,7 +25,7 @@ interface GoalStats {
 interface DepartmentSummary {
   department: string;
   goalCount: number;
-  goalAvgCompletion: number;
+  goalOnTrackPct: number;
   rockCount: number;
   rockAvgCompletion: number;
 }
@@ -144,8 +144,8 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
 
   const chartData = data.map((item) => ({
     name: DEPT_LABELS[item.department] || item.department,
-    Goals: item.goalAvgCompletion,
-    Rocks: item.rockAvgCompletion,
+    "Goals on track %": item.goalOnTrackPct,
+    "Rocks avg %": item.rockAvgCompletion,
   }));
 
   return (
@@ -153,7 +153,7 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="eyebrow">Execution Coverage</p>
-          <h3 className="mt-2 text-xl font-semibold text-text-primary">Completion by department</h3>
+          <h3 className="mt-2 text-xl font-semibold text-text-primary">Performance by department</h3>
         </div>
       </div>
       {mounted ? (
@@ -174,8 +174,8 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
                 domain={[0, 100]}
               />
               <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="Goals" fill={CHART_COLORS.blue} radius={[8, 8, 0, 0]} />
-              <Bar dataKey="Rocks" fill={CHART_COLORS.green} radius={[8, 8, 0, 0]} />
+              <Bar dataKey="Goals on track %" fill={CHART_COLORS.blue} radius={[8, 8, 0, 0]} />
+              <Bar dataKey="Rocks avg %" fill={CHART_COLORS.green} radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -185,7 +185,7 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
             <div key={item.name} className="rounded-2xl border border-border bg-background px-4 py-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-text-primary">{item.name}</span>
-                <span className="text-sm text-text-secondary">Goals {item.Goals}% · Rocks {item.Rocks}%</span>
+                <span className="text-sm text-text-secondary">Goals on track {item["Goals on track %"]}% · Rocks avg {item["Rocks avg %"]}%</span>
               </div>
               <div className="mt-3 space-y-2">
                 <div className="h-2 rounded-full bg-background-quaternary/80">
@@ -202,11 +202,11 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
       <div className="mt-4 flex flex-wrap gap-4 text-xs uppercase tracking-[0.16em] text-text-tertiary">
         <span className="inline-flex items-center gap-2">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: CHART_COLORS.blue }} />
-          Goals
+          Goals on track %
         </span>
         <span className="inline-flex items-center gap-2">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: CHART_COLORS.green }} />
-          Rocks
+          Rocks avg completion %
         </span>
       </div>
     </div>

@@ -15,7 +15,7 @@ export const dashboardService = {
       ...(filters?.fiscalYear && { fiscalYear: filters.fiscalYear }),
     };
 
-    const [goals, rocks, attentionItems, recentUpdates, needsAttentionUpdates] =
+    const [goals, rocks, attentionItems, recentUpdates, needsAttentionUpdates, latestUpdates] =
       await Promise.all([
         prisma.annualGoal.groupBy({ by: ["status"], where, _count: true }),
         prisma.quarterlyRock.groupBy({
@@ -74,6 +74,13 @@ export const dashboardService = {
           orderBy: { weekOf: "desc" },
           take: 30,
         }),
+        // latest WeeklyUpdate per non-ADMIN rock for overall completion
+        prisma.weeklyUpdate.findMany({
+          where: { rock: { department: NON_ADMIN_DEPT, ...(filters?.fiscalYear && { fiscalYear: filters.fiscalYear }) } },
+          distinct: ["rockId"],
+          orderBy: [{ weekOf: "desc" }, { createdAt: "desc" }],
+          select: { completionPct: true },
+        }),
       ]);
 
     // Deduplicate needsAttention by rockId (most recent per rock)
@@ -110,12 +117,18 @@ export const dashboardService = {
       avgCompletion: rockTotal > 0 ? Math.round(totalCompletion / rockTotal) : 0,
     };
 
+    const overallUpdateCompletion =
+      latestUpdates.length > 0
+        ? Math.round(latestUpdates.reduce((s, u) => s + u.completionPct, 0) / latestUpdates.length)
+        : 0;
+
     return {
       goalStats,
       rockStats,
       attentionItems,
       recentUpdates,
       needsAttentionRocks,
+      overallUpdateCompletion,
     };
   },
 
@@ -124,11 +137,11 @@ export const dashboardService = {
     const departments: Department[] = ["SEC_OPS", "SAE", "GRC"];
     const summaries = await Promise.all(
       departments.map(async (dept) => {
-        const [goals, rocks] = await Promise.all([
-          prisma.annualGoal.aggregate({
+        const [goalsByStatus, rocks] = await Promise.all([
+          prisma.annualGoal.groupBy({
+            by: ["status"],
             where: { department: dept, ...(fiscalYear && { fiscalYear }) },
             _count: true,
-            _avg: { completionPct: true },
           }),
           prisma.quarterlyRock.aggregate({
             where: { department: dept, ...(fiscalYear && { fiscalYear }) },
@@ -136,10 +149,14 @@ export const dashboardService = {
             _avg: { completionPct: true },
           }),
         ]);
+        const totalGoals = goalsByStatus.reduce((s, g) => s + g._count, 0);
+        const onTrackGoals = goalsByStatus
+          .filter((g) => g.status === "ON_TRACK" || g.status === "COMPLETED")
+          .reduce((s, g) => s + g._count, 0);
         return {
           department: dept,
-          goalCount: goals._count,
-          goalAvgCompletion: Math.round(goals._avg.completionPct || 0),
+          goalCount: totalGoals,
+          goalOnTrackPct: totalGoals > 0 ? Math.round((onTrackGoals / totalGoals) * 100) : 0,
           rockCount: rocks._count,
           rockAvgCompletion: Math.round(rocks._avg.completionPct || 0),
         };

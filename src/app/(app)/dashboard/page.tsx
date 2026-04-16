@@ -53,16 +53,15 @@ export default async function DashboardPage() {
       attentionItems: [],
       recentUpdates: [],
       needsAttentionRocks: [],
+      overallUpdateCompletion: 0,
     };
     departmentSummary = [];
   }
 
   const { attentionItems, recentUpdates, needsAttentionRocks } = kpis;
 
-  // Overall program progress (avg of department rock completions, excl ADMIN)
-  const overallProgress = departmentSummary.length > 0
-    ? Math.round(departmentSummary.reduce((s: number, d: any) => s + d.rockAvgCompletion, 0) / departmentSummary.length)
-    : 0;
+  // Avg of latest WeeklyUpdate completionPct per non-ADMIN rock
+  const overallProgress = kpis.overallUpdateCompletion ?? 0;
 
   const atRiskByDept: Record<string, number> = {};
   for (const item of attentionItems) {
@@ -168,7 +167,7 @@ export default async function DashboardPage() {
               <h3 className="mt-2 text-xl font-semibold text-text-primary">
                 {formatPercent(overallProgress)} complete
               </h3>
-              <p className="mt-1 text-xs text-text-tertiary">Avg across all departments (excl. Admin)</p>
+              <p className="mt-1 text-xs text-text-tertiary">Avg of latest rock updates (excl. Admin)</p>
             </div>
             <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-background-tertiary">
               <div
