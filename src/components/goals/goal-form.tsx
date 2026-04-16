@@ -178,6 +178,13 @@ export function GoalForm({ goal, users }: GoalFormProps) {
               <ChecklistInput
                 value={metricsValue}
                 onChange={setMetricsValue}
+                onSave={goal ? async (value) => {
+                  await fetch(`/api/goals/${goal.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ metrics: value }),
+                  });
+                } : undefined}
               />
             </div>
           </div>

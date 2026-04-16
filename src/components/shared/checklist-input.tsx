@@ -96,7 +96,7 @@ export function ChecklistInput({ value, onChange, onSave }: ChecklistInputProps)
             onKeyDown={(e) => handleKeyDown(e, idx)}
             placeholder="Item..."
             className={`h-8 flex-1 bg-transparent text-sm outline-none placeholder:text-text-tertiary ${
-              item.completed ? "text-emerald-500 line-through" : "text-text-primary"
+              item.completed ? "text-emerald-500" : "text-text-primary"
             }`}
           />
           <button
