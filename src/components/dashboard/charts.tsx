@@ -34,6 +34,7 @@ const DEPT_LABELS: Record<string, string> = {
   SEC_OPS: "SecOps",
   SAE: "SAE",
   GRC: "GRC",
+  ADMIN: "Admin",
 };
 
 const tooltipStyle = {

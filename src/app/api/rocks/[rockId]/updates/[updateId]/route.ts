@@ -33,3 +33,14 @@ export async function PUT(
   const updated = await updateService.update(params.updateId, parsed.data, session.user.id);
   return NextResponse.json(updated);
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: { rockId: string; updateId: string } }
+) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  await updateService.delete(params.updateId, session.user.id);
+  return NextResponse.json({ success: true });
+}

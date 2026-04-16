@@ -2,57 +2,91 @@ import { prisma } from "@/lib/prisma";
 import type { Department } from "@prisma/client";
 import { subDays } from "date-fns";
 
+const NON_ADMIN_DEPT = { not: "ADMIN" as Department };
+
 export const dashboardService = {
   async getKPIs(filters?: { department?: string; fiscalYear?: number }) {
+    const deptFilter = filters?.department
+      ? { department: filters.department as Department }
+      : { department: NON_ADMIN_DEPT };
+
     const where = {
-      ...(filters?.department && { department: filters.department as Department }),
+      ...deptFilter,
       ...(filters?.fiscalYear && { fiscalYear: filters.fiscalYear }),
     };
 
-    const [goals, rocks, attentionItems, recentUpdates] = await Promise.all([
-      prisma.annualGoal.groupBy({
-        by: ["status"],
-        where,
-        _count: true,
-      }),
-      prisma.quarterlyRock.groupBy({
-        by: ["status"],
-        where,
-        _count: true,
-        _avg: { completionPct: true },
-      }),
-      prisma.quarterlyRock.findMany({
-        where: {
-          ...where,
-          OR: [
-            { status: "BLOCKED" },
-            { status: "OVERDUE" },
-            { isStale: true },
-            { confidence: "LOW" },
-          ],
-        },
-        include: {
-          owner: { select: { id: true, name: true } },
-          goal: { select: { id: true, title: true } },
-        },
-        orderBy: { updatedAt: "desc" },
-        take: 10,
-      }),
-      prisma.weeklyUpdate.findMany({
-        where: {
-          needsAttention: true,
-          createdAt: { gte: subDays(new Date(), 14) },
-        },
-        include: {
-          rock: { select: { id: true, title: true } },
-          author: { select: { id: true, name: true } },
-        },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-    ]);
+    const [goals, rocks, attentionItems, recentUpdates, needsAttentionUpdates] =
+      await Promise.all([
+        prisma.annualGoal.groupBy({ by: ["status"], where, _count: true }),
+        prisma.quarterlyRock.groupBy({
+          by: ["status"],
+          where,
+          _count: true,
+          _avg: { completionPct: true },
+        }),
+        prisma.quarterlyRock.findMany({
+          where: {
+            ...where,
+            OR: [
+              { status: "BLOCKED" },
+              { status: "OVERDUE" },
+              { isStale: true },
+              { confidence: "LOW" },
+            ],
+          },
+          include: {
+            owner: { select: { id: true, name: true } },
+            goal: { select: { id: true, title: true } },
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 10,
+        }),
+        prisma.weeklyUpdate.findMany({
+          where: {
+            rock: { department: NON_ADMIN_DEPT },
+            createdAt: { gte: subDays(new Date(), 14) },
+          },
+          include: {
+            rock: { select: { id: true, title: true } },
+            author: { select: { id: true, name: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        }),
+        // rocks with needsAttention=true from recent updates
+        prisma.weeklyUpdate.findMany({
+          where: {
+            needsAttention: true,
+            rock: { department: NON_ADMIN_DEPT },
+            weekOf: { gte: subDays(new Date(), 30) },
+          },
+          include: {
+            rock: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+                owner: { select: { id: true, name: true } },
+                goal: { select: { id: true, title: true } },
+              },
+            },
+          },
+          orderBy: { weekOf: "desc" },
+          take: 30,
+        }),
+      ]);
 
-    // Process goal stats
+    // Deduplicate needsAttention by rockId (most recent per rock)
+    const seenRocks = new Set<string>();
+    const needsAttentionRocks = needsAttentionUpdates
+      .filter((u) => {
+        if (seenRocks.has(u.rockId)) return false;
+        seenRocks.add(u.rockId);
+        return true;
+      })
+      .map((u) => u.rock)
+      .slice(0, 15);
+
     const goalStats = {
       total: goals.reduce((sum, g) => sum + g._count, 0),
       onTrack: goals.find((g) => g.status === "ON_TRACK")?._count || 0,
@@ -61,7 +95,6 @@ export const dashboardService = {
       completed: goals.find((g) => g.status === "COMPLETED")?._count || 0,
     };
 
-    // Process rock stats
     const rockTotal = rocks.reduce((sum, r) => sum + r._count, 0);
     const totalCompletion = rocks.reduce(
       (sum, r) => sum + (r._avg.completionPct || 0) * r._count,
@@ -82,10 +115,12 @@ export const dashboardService = {
       rockStats,
       attentionItems,
       recentUpdates,
+      needsAttentionRocks,
     };
   },
 
   async getDepartmentSummary(fiscalYear?: number) {
+    // Hardcoded to exclude ADMIN
     const departments: Department[] = ["SEC_OPS", "SAE", "GRC"];
     const summaries = await Promise.all(
       departments.map(async (dept) => {

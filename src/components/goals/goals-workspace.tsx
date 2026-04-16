@@ -23,6 +23,7 @@ import { cn, formatDate, formatPercent } from "@/lib/utils";
 type DepartmentKey = keyof typeof DEPARTMENT_CONFIG;
 type SortDir = "asc" | "desc";
 type Confidence = "HIGH" | "MEDIUM" | "LOW";
+type RockStatus = "NOT_STARTED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "OVERDUE";
 
 interface GoalRow {
   id: string;
@@ -42,9 +43,8 @@ interface LoadedRock {
   id: string;
   title: string;
   quarter: string;
-  status: string;
+  status: RockStatus;
   completionPct: number;
-  confidence: Confidence;
   owner: { id: string; name: string };
 }
 
@@ -105,31 +105,43 @@ function exportCSV(goals: GoalRow[]) {
 
 // ─── Rock update row ──────────────────────────────────────────────────────────
 
-const CONF_CYCLE: Confidence[] = ["HIGH", "MEDIUM", "LOW"];
-const CONF_LABEL: Record<Confidence, string> = { HIGH: "On Track", MEDIUM: "At Risk", LOW: "Off Track" };
-const CONF_CLS: Record<Confidence, string> = {
-  HIGH:   "border-emerald-500/40 bg-emerald-500/10 text-emerald-500",
-  MEDIUM: "border-amber-500/40  bg-amber-500/10  text-amber-500",
-  LOW:    "border-red-500/40    bg-red-500/10    text-red-500",
-};
+const ROCK_STATUS_OPTIONS: { value: RockStatus; label: string }[] = [
+  { value: "NOT_STARTED", label: "Not Started" },
+  { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "BLOCKED",     label: "Blocked" },
+  { value: "COMPLETED",   label: "Completed" },
+  { value: "OVERDUE",     label: "Overdue" },
+];
+
+function statusToConfidence(s: RockStatus): Confidence {
+  if (s === "COMPLETED" || s === "IN_PROGRESS") return "HIGH";
+  if (s === "NOT_STARTED") return "MEDIUM";
+  return "LOW";
+}
 
 function RockUpdateRow({ rock }: { rock: LoadedRock }) {
-  const [pct, setPct]         = useState(rock.completionPct);
-  const [conf, setConf]       = useState<Confidence>(rock.confidence ?? "HIGH");
-  const [notes, setNotes]     = useState("");
-  const [updateId, setUpdateId] = useState<string | null>(null);
-  const [saving, setSaving]   = useState(false);
-  const [saved, setSaved]     = useState(false);
+  const [pct, setPct]             = useState(rock.completionPct);
+  const [status, setStatus]       = useState<RockStatus>(rock.status);
+  const [notes, setNotes]         = useState("");
+  const [blockers, setBlockers]   = useState("");
+  const [needsAttn, setNeedsAttn] = useState(false);
+  const [updateId, setUpdateId]   = useState<string | null>(null);
+  const [saving, setSaving]       = useState(false);
+  const [saved, setSaved]         = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function save(overridePct?: number, overrideConf?: Confidence) {
+  async function save(overrides?: Partial<{ pct: number; status: RockStatus; needsAttn: boolean }>) {
     if (saving) return;
     setSaving(true);
+    const curStatus = overrides?.status   ?? status;
+    const curPct    = overrides?.pct      ?? pct;
+    const curAttn   = overrides?.needsAttn ?? needsAttn;
     const body = {
-      completionPct: overridePct ?? pct,
-      confidenceLevel: overrideConf ?? conf,
-      progressNotes: notes.trim() || "-",
-      needsAttention: (overrideConf ?? conf) === "LOW",
+      completionPct:   curPct,
+      confidenceLevel: statusToConfidence(curStatus),
+      progressNotes:   notes.trim() || "-",
+      blockers:        blockers.trim() || undefined,
+      needsAttention:  curAttn,
     };
 
     try {
@@ -150,7 +162,6 @@ function RockUpdateRow({ rock }: { rock: LoadedRock }) {
           const data = await res.json();
           id = data.id;
         } else {
-          // Conflict — find existing week update and PUT
           const all = await fetch(`/api/rocks/${rock.id}/updates`).then((r) => r.json());
           const mon = getMonday();
           const existing = (all as { id: string; weekOf: string }[]).find((u) =>
@@ -167,6 +178,13 @@ function RockUpdateRow({ rock }: { rock: LoadedRock }) {
         }
         if (id) setUpdateId(id);
       }
+      // Patch rock status — silent fail if unauthorized
+      fetch(`/api/rocks/${rock.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: curStatus }),
+      }).catch(() => {});
+
       setSaved(true);
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => setSaved(false), 2000);
@@ -175,26 +193,17 @@ function RockUpdateRow({ rock }: { rock: LoadedRock }) {
     }
   }
 
-  function cycleConf() {
-    const next = CONF_CYCLE[(CONF_CYCLE.indexOf(conf) + 1) % 3];
-    setConf(next);
-    save(undefined, next);
-  }
-
   function handleKey(e: React.KeyboardEvent) {
     if (e.key === "Enter") { e.preventDefault(); save(); }
   }
 
-  const monday = getMonday();
+  const monday   = getMonday();
   const dateLabel = new Date(monday + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
   return (
     <tr className="border-b border-border/40 hover:bg-background-tertiary/20">
-      <td className="py-1.5 pl-10 pr-3 max-w-[200px]">
-        <Link
-          href={`/rocks/${rock.id}`}
-          className="block truncate text-xs font-medium text-text-primary hover:text-accent"
-        >
+      <td className="py-1.5 pl-10 pr-3 max-w-[180px]">
+        <Link href={`/rocks/${rock.id}`} className="block truncate text-xs font-medium text-text-primary hover:text-accent">
           {rock.title}
         </Link>
       </td>
@@ -202,54 +211,41 @@ function RockUpdateRow({ rock }: { rock: LoadedRock }) {
       <td className="px-3 py-1.5 text-[11px] font-semibold text-text-tertiary">{rock.quarter}</td>
       <td className="px-3 py-1.5">
         <select
-          value={conf}
-          onChange={(e) => setConf(e.target.value as Confidence)}
-          onBlur={() => save()}
+          value={status}
+          onChange={(e) => { const s = e.target.value as RockStatus; setStatus(s); save({ status: s }); }}
           className="h-8 rounded border border-border bg-background px-2 text-xs text-text-primary focus:border-accent focus:outline-none"
         >
-          <option value="HIGH">High</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="LOW">Low</option>
+          {ROCK_STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </td>
       <td className="px-3 py-1.5">
-        <button
-          type="button"
-          onClick={cycleConf}
-          className={cn(
-            "rounded-full border px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
-            CONF_CLS[conf]
-          )}
-        >
-          {CONF_LABEL[conf]}
-        </button>
-      </td>
-      <td className="px-3 py-1.5">
-        <input
-          type="number"
-          min={0}
-          max={100}
-          value={pct}
+        <input type="number" min={0} max={100} value={pct}
           onChange={(e) => setPct(Number(e.target.value))}
-          onBlur={() => save()}
-          onKeyDown={handleKey}
+          onBlur={() => save()} onKeyDown={handleKey}
           className="h-8 w-14 rounded border border-border bg-background px-2 text-xs text-text-primary focus:border-accent focus:outline-none"
         />
       </td>
       <td className="px-3 py-1.5">
-        <input
-          type="text"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          onBlur={() => save()}
-          onKeyDown={handleKey}
-          placeholder="Notes…"
-          className="h-8 w-48 rounded border border-border bg-background px-2 text-xs text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none"
+        <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)}
+          onBlur={() => save()} onKeyDown={handleKey} placeholder="Notes…"
+          className="h-8 w-32 rounded border border-border bg-background px-2 text-xs text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none"
+        />
+      </td>
+      <td className="px-3 py-1.5">
+        <input type="text" value={blockers} onChange={(e) => setBlockers(e.target.value)}
+          onBlur={() => save()} onKeyDown={handleKey} placeholder="Blockers…"
+          className="h-8 w-32 rounded border border-border bg-background px-2 text-xs text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none"
+        />
+      </td>
+      <td className="px-3 py-1.5 text-center">
+        <input type="checkbox" checked={needsAttn}
+          onChange={(e) => { setNeedsAttn(e.target.checked); save({ needsAttn: e.target.checked }); }}
+          className="h-3.5 w-3.5 cursor-pointer accent-accent"
         />
       </td>
       <td className="px-3 py-1.5 text-[11px] text-text-tertiary whitespace-nowrap">{dateLabel}</td>
       <td className="w-6 px-2 py-1.5 text-center">
-        {saving && <span className="text-[10px] text-text-tertiary animate-pulse">…</span>}
+        {saving  && <span className="animate-pulse text-[10px] text-text-tertiary">…</span>}
         {!saving && saved && <span className="text-[10px] text-emerald-500">✓</span>}
       </td>
     </tr>
@@ -294,10 +290,11 @@ function RockUpdateTable({ goalId }: { goalId: string }) {
             <th className="py-1 pl-10 pr-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Rock</th>
             <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Owner</th>
             <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Qtr</th>
-            <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Confidence</th>
             <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Status</th>
             <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">%</th>
             <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Notes</th>
+            <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Blockers</th>
+            <th className="px-3 py-1 text-center text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Attn</th>
             <th className="px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">Date</th>
             <th className="w-6" />
           </tr>

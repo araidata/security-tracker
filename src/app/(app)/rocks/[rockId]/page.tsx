@@ -9,6 +9,7 @@ import { DepartmentBadge } from "@/components/shared/department-badge";
 import { ConfidenceIndicator } from "@/components/shared/confidence-indicator";
 import { DeleteEntityButton } from "@/components/shared/delete-entity-button";
 import { KpiChecklist } from "@/components/rocks/kpi-checklist";
+import { WeeklyUpdatesTable } from "@/components/rocks/weekly-updates-table";
 import { InlineAssignmentRow } from "@/components/rocks/inline-assignment-row";
 import { formatPercent, formatDate, getDaysAgo, parseKpiItems } from "@/lib/utils";
 import { PencilIcon, PlusIcon } from "@heroicons/react/24/outline";
@@ -187,71 +188,30 @@ export default async function RockDetailPage({
         )}
       </div>
 
-      {/* Weekly Updates Timeline */}
+      {/* Weekly Updates */}
       <div className="card">
-        <h3 className="mb-3 text-sm font-semibold text-text-primary">
-          Weekly Updates ({rock.weeklyUpdates.length})
-        </h3>
-        {rock.weeklyUpdates.length === 0 ? (
-          <div className="py-3 text-center">
-            <p className="text-sm text-text-tertiary">No updates yet</p>
-            <Link
-              href={`/rocks/${rock.id}/updates/new`}
-              className="btn-primary mt-3 inline-flex"
-            >
-              Submit First Update
-            </Link>
-          </div>
-        ) : (
-          <div className="relative space-y-3 pl-6">
-            <div className="absolute bottom-0 left-2 top-0 w-px bg-border" />
-            {rock.weeklyUpdates.map((update) => (
-              <div key={update.id} className="relative">
-                <div className="absolute -left-[18px] top-2 h-2.5 w-2.5 rounded-full border-2 border-background-secondary bg-accent" />
-                <div className="rounded-lg border border-border p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-text-primary">
-                        Week of {formatDate(update.weekOf)}
-                      </span>
-                      {update.needsAttention && (
-                        <span className="rounded bg-status-off-track/10 px-1.5 py-0.5 text-xs text-status-off-track">
-                          Needs Attention
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <ConfidenceIndicator confidence={update.confidenceLevel} />
-                      <span className="text-xs text-text-secondary">
-                        {formatPercent(update.completionPct)}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-text-primary">{update.progressNotes}</p>
-                  {update.blockers && (
-                    <p className="mt-1.5 text-sm text-status-blocked">
-                      <span className="font-medium">Blockers:</span> {update.blockers}
-                    </p>
-                  )}
-                  {update.risks && (
-                    <p className="mt-1 text-sm text-status-at-risk">
-                      <span className="font-medium">Risks:</span> {update.risks}
-                    </p>
-                  )}
-                  {update.decisions && (
-                    <p className="mt-1 text-sm text-accent">
-                      <span className="font-medium">Decisions Needed:</span>{" "}
-                      {update.decisions}
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs text-text-tertiary">
-                    by {update.author.name} &middot; {getDaysAgo(update.createdAt)} days ago
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text-primary">
+            Weekly Updates ({rock.weeklyUpdates.length})
+          </h3>
+          <Link href={`/rocks/${rock.id}/updates/new`} className="btn-primary">
+            <PlusIcon className="mr-1 h-3.5 w-3.5" />
+            Add Update
+          </Link>
+        </div>
+        <WeeklyUpdatesTable
+          rockId={rock.id}
+          initialUpdates={rock.weeklyUpdates.map((u) => ({
+            id: u.id,
+            weekOf: u.weekOf,
+            completionPct: u.completionPct,
+            confidenceLevel: u.confidenceLevel,
+            progressNotes: u.progressNotes,
+            blockers: u.blockers,
+            needsAttention: u.needsAttention,
+            author: u.author,
+          }))}
+        />
       </div>
     </div>
   );
