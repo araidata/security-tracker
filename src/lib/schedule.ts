@@ -25,6 +25,7 @@ export const DEPARTMENT_SLUGS: Record<Department, string> = {
   SEC_OPS: "sec-ops",
   SAE: "sae",
   GRC: "grc",
+  ADMIN: "admin",
 };
 
 const DEPARTMENT_SLUG_LOOKUP: Record<string, Department> = {
