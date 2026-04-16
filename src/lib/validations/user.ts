@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
 const roleSchema = z.enum(["EXECUTIVE", "MANAGER", "CONTRIBUTOR"]);
-const departmentSchema = z.enum(["SEC_OPS", "SAE", "GRC"]);
+const departmentSchema = z.enum(["SEC_OPS", "SAE", "GRC", "ADMIN"]);
 
 const baseUserSchema = z.object({
   name: z.string().trim().min(1).max(120),

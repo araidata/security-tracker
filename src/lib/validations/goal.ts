@@ -4,7 +4,7 @@ export const createGoalSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(1),
   fiscalYear: z.number().int().min(2020).max(2050),
-  department: z.enum(["SEC_OPS", "SAE", "GRC"]),
+  department: z.enum(["SEC_OPS", "SAE", "GRC", "ADMIN"]),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
   targetDate: z.string().transform((s) => new Date(s)),
   metrics: z.string().optional(),

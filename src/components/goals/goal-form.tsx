@@ -105,6 +105,7 @@ export function GoalForm({ goal, users }: GoalFormProps) {
                 <option value="SEC_OPS">SecOps</option>
                 <option value="SAE">SAE</option>
                 <option value="GRC">GRC</option>
+                <option value="ADMIN">Admin</option>
               </select>
             </div>
             <div>

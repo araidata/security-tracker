@@ -8,7 +8,7 @@ export const createRockSchema = z.object({
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
   targetDate: z.string().transform((s) => new Date(s)),
   kpiMetric: z.string().optional(),
-  department: z.enum(["SEC_OPS", "SAE", "GRC"]),
+  department: z.enum(["SEC_OPS", "SAE", "GRC", "ADMIN"]),
   goalId: z.string().min(1),
   ownerId: z.string().min(1),
 });

@@ -135,6 +135,7 @@ export function RockForm({ rock, goals, users, defaultGoalId }: RockFormProps) {
             <option value="SEC_OPS">SecOps</option>
             <option value="SAE">SAE</option>
             <option value="GRC">GRC</option>
+            <option value="ADMIN">Admin</option>
           </select>
         </div>
         <div>

@@ -98,9 +98,10 @@ export const DEPARTMENT_CONFIG = {
   SEC_OPS: { label: "SecOps", shortLabel: "SO" },
   SAE: { label: "SAE", shortLabel: "SAE" },
   GRC: { label: "GRC", shortLabel: "GRC" },
+  ADMIN: { label: "Admin", shortLabel: "ADM" },
 } as const;
 
-export const DEPARTMENT_ORDER = ["SEC_OPS", "SAE", "GRC"] as const;
+export const DEPARTMENT_ORDER = ["SEC_OPS", "SAE", "GRC", "ADMIN"] as const;
 
 export const ROLE_CONFIG = {
   EXECUTIVE: { label: "Executive" },
