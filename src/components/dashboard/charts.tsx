@@ -189,10 +189,10 @@ export function DepartmentChart({ data }: { data: DepartmentSummary[] }) {
               </div>
               <div className="mt-3 space-y-2">
                 <div className="h-2 rounded-full bg-background-quaternary/80">
-                  <div className="h-2 rounded-full" style={{ width: `${item.Goals}%`, backgroundColor: CHART_COLORS.blue }} />
+                  <div className="h-2 rounded-full" style={{ width: `${item["Goals on track %"]}%`, backgroundColor: CHART_COLORS.blue }} />
                 </div>
                 <div className="h-2 rounded-full bg-background-quaternary/80">
-                  <div className="h-2 rounded-full" style={{ width: `${item.Rocks}%`, backgroundColor: CHART_COLORS.green }} />
+                  <div className="h-2 rounded-full" style={{ width: `${item["Rocks avg %"]}%`, backgroundColor: CHART_COLORS.green }} />
                 </div>
               </div>
             </div>
