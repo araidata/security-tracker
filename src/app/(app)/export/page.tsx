@@ -17,7 +17,7 @@ export default async function ExportPage() {
     [goals, rocks, updates] = await Promise.all([
       prisma.annualGoal.findMany({
         where: { fiscalYear: year, department: { not: "ADMIN" } },
-        select: { id: true, title: true, department: true, status: true, completionPct: true },
+        select: { id: true, title: true, description: true, department: true, status: true, completionPct: true },
       }),
       prisma.quarterlyRock.findMany({
         where: { fiscalYear: year, department: { not: "ADMIN" } },
@@ -25,6 +25,7 @@ export default async function ExportPage() {
           id: true,
           goalId: true,
           title: true,
+          description: true,
           status: true,
           completionPct: true,
           quarter: true,

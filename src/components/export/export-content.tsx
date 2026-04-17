@@ -11,6 +11,7 @@ const DEPT_IDX: Record<string, number> = { SEC_OPS: 0, SAE: 1, GRC: 2 };
 export interface ExportGoal {
   id: string;
   title: string;
+  description: string | null;
   department: string;
   status: string;
   completionPct: number;
@@ -20,6 +21,7 @@ export interface ExportRock {
   id: string;
   goalId: string;
   title: string;
+  description: string | null;
   status: string;
   completionPct: number;
   quarter: string;
@@ -56,11 +58,20 @@ function fmt(iso: string): string {
   });
 }
 
+function formatDesc(text: string, indent: string): string {
+  return text
+    .split("\n")
+    .map((line) => indent + line)
+    .join("\n");
+}
+
 function buildReport(
   goals: ExportGoal[],
   rocks: ExportRock[],
   updatesByRock: Map<string, ExportUpdate[]>,
-  latestOnly: boolean
+  latestOnly: boolean,
+  includeGoalDesc: boolean,
+  includeRockDesc: boolean,
 ): string {
   const rocksByGoal = new Map<string, ExportRock[]>();
   for (const rock of rocks) {
@@ -80,6 +91,10 @@ function buildReport(
 
     lines.push("═".repeat(60));
     lines.push(`GOAL: ${goal.title}`);
+    if (includeGoalDesc && goal.description) {
+      lines.push(formatDesc(goal.description, "Description: "));
+      lines.push("");
+    }
     lines.push(`Dept: ${deptLabel} | ${formatPercent(goal.completionPct)} Complete`);
     lines.push("═".repeat(60));
     lines.push("");
@@ -90,6 +105,10 @@ function buildReport(
         rock.status;
 
       lines.push(`  ROCK: ${rock.title} (${rock.quarter})`);
+      if (includeRockDesc && rock.description) {
+        lines.push(formatDesc(rock.description, "  Description: "));
+        lines.push("");
+      }
       lines.push(
         `  Status: ${statusLabel} | ${formatPercent(rock.completionPct)} | Owner: ${rock.owner.name}`
       );
@@ -138,6 +157,8 @@ export function ExportContent({
   const [timeRange, setTimeRange] = useState<"this_week" | "last_N" | "all">("all");
   const [nWeeks, setNWeeks] = useState(4);
   const [latestOnly, setLatestOnly] = useState(true);
+  const [includeGoalDesc, setIncludeGoalDesc] = useState(false);
+  const [includeRockDesc, setIncludeRockDesc] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Dept-filtered goals (for goal dropdown options)
@@ -206,8 +227,8 @@ export function ExportContent({
   }, [updates, finalRockIds, cutoff]);
 
   const report = useMemo(
-    () => buildReport(finalGoals, finalRocks, updatesByRock, latestOnly),
-    [finalGoals, finalRocks, updatesByRock, latestOnly]
+    () => buildReport(finalGoals, finalRocks, updatesByRock, latestOnly, includeGoalDesc, includeRockDesc),
+    [finalGoals, finalRocks, updatesByRock, latestOnly, includeGoalDesc, includeRockDesc]
   );
 
   function handleDeptChange(v: string) {
@@ -343,6 +364,27 @@ export function ExportContent({
               className="h-3.5 w-3.5"
             />
             All updates
+          </label>
+        </Field>
+
+        <Field label="Include">
+          <label className="flex cursor-pointer items-center gap-2 text-xs text-text-secondary">
+            <input
+              type="checkbox"
+              checked={includeGoalDesc}
+              onChange={(e) => setIncludeGoalDesc(e.target.checked)}
+              className="h-3.5 w-3.5"
+            />
+            Goal Description
+          </label>
+          <label className="mt-1.5 flex cursor-pointer items-center gap-2 text-xs text-text-secondary">
+            <input
+              type="checkbox"
+              checked={includeRockDesc}
+              onChange={(e) => setIncludeRockDesc(e.target.checked)}
+              className="h-3.5 w-3.5"
+            />
+            Rock Description
           </label>
         </Field>
       </aside>
